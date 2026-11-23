@@ -1,0 +1,20 @@
+{
+  "files": {
+    "data/patent/train/positive/2025-08-07-10.xlsx": 10000,
+    "data/patent/train/negative/2025-08-07.xlsx": 5125,
+    "data/patent/train/negative/2025-08-07-2.xlsx": 10000
+  },
+  "rows_seen": 0,
+  "rows_kept": 25125,
+  "patents": 25125,
+  "companies": 9502,
+  "classes": 293,
+  "inventors": 40636,
+  "rel_applied": 28218,
+  "rel_invented": 78806,
+  "rel_in_class": 23107,
+  "rel_cites": 98863,
+  "stub_patents": 72307,
+  "granted": 10000,
+  "rejected": 15125
+}

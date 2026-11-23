@@ -1,0 +1,14 @@
+﻿# 大文件与运行产物，不入库
+tools/
+pylibs/
+tmp/
+.venv/
+pipcache/
+__pycache__/
+*.pyc
+*.log
+*.zip
+
+# 本地缓存
+.streamlit/
+.data/
