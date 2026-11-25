@@ -1,0 +1,343 @@
+{
+  "status": "ok",
+  "generated_at": "2026-11-25T18:59:59",
+  "scope": "full",
+  "source": "data/processed",
+  "neo4j": {
+    "uri": "neo4j://127.0.0.1:7687",
+    "version": "2026.10.2",
+    "edition": "enterprise"
+  },
+  "nodes": {
+    "Patent": 106393,
+    "Applicant": 27557,
+    "IPC": 13166,
+    "Technology": 50,
+    "Domain": 8
+  },
+  "relationships": {
+    "APPLIES_FOR": 115927,
+    "CITES": 35114,
+    "HAS_IPC": 306023,
+    "INVOLVES": 104723,
+    "BELONGS_TO": 50,
+    "CO_APPLIED_WITH": 9826
+  },
+  "source_counts": {
+    "patents": 106393,
+    "applicants": 115927,
+    "applicant_names": 27557,
+    "ipc": 13166,
+    "topics": 50,
+    "domains": 8,
+    "topic_domain_pairs": 50,
+    "citations_all": 442917,
+    "citations_in_sample": 35114,
+    "citations_external": 407803,
+    "cooperation": 9826
+  },
+  "not_imported": {
+    "external_citations": 407803,
+    "reason": "CITES only imports cited_in_sample=true; external targets use external_citation_applicants.parquet"
+  },
+  "constraints": [
+    {
+      "name": "applicant_name_v2",
+      "type": "NODE_PROPERTY_UNIQUENESS",
+      "labelsOrTypes": [
+        "Applicant"
+      ],
+      "properties": [
+        "name"
+      ]
+    },
+    {
+      "name": "domain_name_v2",
+      "type": "NODE_PROPERTY_UNIQUENESS",
+      "labelsOrTypes": [
+        "Domain"
+      ],
+      "properties": [
+        "name"
+      ]
+    },
+    {
+      "name": "ipc_code_v2",
+      "type": "NODE_PROPERTY_UNIQUENESS",
+      "labelsOrTypes": [
+        "IPC"
+      ],
+      "properties": [
+        "code"
+      ]
+    },
+    {
+      "name": "patent_id_v2",
+      "type": "NODE_PROPERTY_UNIQUENESS",
+      "labelsOrTypes": [
+        "Patent"
+      ],
+      "properties": [
+        "patent_id"
+      ]
+    },
+    {
+      "name": "technology_name_v2",
+      "type": "NODE_PROPERTY_UNIQUENESS",
+      "labelsOrTypes": [
+        "Technology"
+      ],
+      "properties": [
+        "name"
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "name": "applicant_name_v2",
+      "type": "RANGE",
+      "labelsOrTypes": [
+        "Applicant"
+      ],
+      "properties": [
+        "name"
+      ]
+    },
+    {
+      "name": "domain_name_v2",
+      "type": "RANGE",
+      "labelsOrTypes": [
+        "Domain"
+      ],
+      "properties": [
+        "name"
+      ]
+    },
+    {
+      "name": "index_1b9dcc97",
+      "type": "LOOKUP",
+      "labelsOrTypes": null,
+      "properties": null
+    },
+    {
+      "name": "index_460996c0",
+      "type": "LOOKUP",
+      "labelsOrTypes": null,
+      "properties": null
+    },
+    {
+      "name": "ipc_code_v2",
+      "type": "RANGE",
+      "labelsOrTypes": [
+        "IPC"
+      ],
+      "properties": [
+        "code"
+      ]
+    },
+    {
+      "name": "patent_apply_year_v2",
+      "type": "RANGE",
+      "labelsOrTypes": [
+        "Patent"
+      ],
+      "properties": [
+        "apply_year"
+      ]
+    },
+    {
+      "name": "patent_country_v2",
+      "type": "RANGE",
+      "labelsOrTypes": [
+        "Patent"
+      ],
+      "properties": [
+        "country"
+      ]
+    },
+    {
+      "name": "patent_id_v2",
+      "type": "RANGE",
+      "labelsOrTypes": [
+        "Patent"
+      ],
+      "properties": [
+        "patent_id"
+      ]
+    },
+    {
+      "name": "technology_name_v2",
+      "type": "RANGE",
+      "labelsOrTypes": [
+        "Technology"
+      ],
+      "properties": [
+        "name"
+      ]
+    }
+  ],
+  "verification": {
+    "nodes_match_parquet": true,
+    "relationships_match_parquet": true
+  },
+  "query_samples": [
+    {
+      "title": "申请量 Top 10",
+      "cypher": "MATCH (a:Applicant)-[:APPLIES_FOR]->(p:Patent)\n            RETURN a.name AS 申请人, count(DISTINCT p) AS 专利数\n            ORDER BY 专利数 DESC, 申请人 LIMIT 10",
+      "params": {
+        "name": "现代公司"
+      },
+      "rows": [
+        {
+          "申请人": "现代公司",
+          "专利数": 3996
+        },
+        {
+          "申请人": "丰田公司",
+          "专利数": 2113
+        },
+        {
+          "申请人": "台铃科技",
+          "专利数": 1838
+        },
+        {
+          "申请人": "国家电网",
+          "专利数": 1593
+        },
+        {
+          "申请人": "本田公司",
+          "专利数": 1549
+        },
+        {
+          "申请人": "爱玛科技",
+          "专利数": 1467
+        },
+        {
+          "申请人": "比亚迪司",
+          "专利数": 1235
+        },
+        {
+          "申请人": "北汽集团",
+          "专利数": 1117
+        },
+        {
+          "申请人": "三菱公司",
+          "专利数": 1056
+        },
+        {
+          "申请人": "雅迪科技",
+          "专利数": 1012
+        }
+      ]
+    },
+    {
+      "title": "企业 → IPC",
+      "cypher": "MATCH (a:Applicant {name: $name})-[:APPLIES_FOR]->(:Patent)-[:HAS_IPC]->(i:IPC)\n            RETURN i.code AS IPC, count(*) AS 专利数\n            ORDER BY 专利数 DESC, IPC LIMIT 10",
+      "params": {
+        "name": "现代公司"
+      },
+      "rows": [
+        {
+          "IPC": "B60L11/18",
+          "专利数": 652
+        },
+        {
+          "IPC": "B60W20/00",
+          "专利数": 502
+        },
+        {
+          "IPC": "B60W10/08",
+          "专利数": 442
+        },
+        {
+          "IPC": "B60W10/06",
+          "专利数": 394
+        },
+        {
+          "IPC": "H01M8/04",
+          "专利数": 281
+        },
+        {
+          "IPC": "B60L15/20",
+          "专利数": 225
+        },
+        {
+          "IPC": "B60W10/02",
+          "专利数": 217
+        },
+        {
+          "IPC": "H02J7/00",
+          "专利数": 200
+        },
+        {
+          "IPC": "B60L50/50",
+          "专利数": 195
+        },
+        {
+          "IPC": "B60L3/00",
+          "专利数": 186
+        }
+      ]
+    },
+    {
+      "title": "企业 → 技术主题 → 领域",
+      "cypher": "MATCH (a:Applicant {name: $name})-[:APPLIES_FOR]->(:Patent)\n                  -[:INVOLVES]->(t:Technology)-[:BELONGS_TO]->(d:Domain)\n            RETURN d.name AS 领域, t.name AS 主题, count(*) AS 专利数\n            ORDER BY 专利数 DESC, 领域, 主题 LIMIT 10",
+      "params": {
+        "name": "现代公司"
+      },
+      "rows": [
+        {
+          "领域": "电驱动",
+          "主题": "驱动电机",
+          "专利数": 1179
+        },
+        {
+          "领域": "电驱动",
+          "主题": "减速器与传动",
+          "专利数": 630
+        },
+        {
+          "领域": "整车与能量管理",
+          "主题": "整车电控（未细分）",
+          "专利数": 443
+        },
+        {
+          "领域": "电驱动",
+          "主题": "电机控制",
+          "专利数": 277
+        },
+        {
+          "领域": "智能驾驶",
+          "主题": "车规芯片",
+          "专利数": 239
+        },
+        {
+          "领域": "动力电池",
+          "主题": "电池（未细分）",
+          "专利数": 233
+        },
+        {
+          "领域": "整车与能量管理",
+          "主题": "整车控制（未细分）",
+          "专利数": 232
+        },
+        {
+          "领域": "动力电池",
+          "主题": "电池回收与梯次利用",
+          "专利数": 188
+        },
+        {
+          "领域": "热管理",
+          "主题": "整车热管理",
+          "专利数": 184
+        },
+        {
+          "领域": "电驱动",
+          "主题": "电控与功率器件",
+          "专利数": 168
+        }
+      ]
+    }
+  ],
+  "elapsed_seconds": 125.1
+}
