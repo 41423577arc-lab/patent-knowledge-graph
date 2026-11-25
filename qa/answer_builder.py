@@ -1,23 +1,188 @@
-"""P2: real-answer implementation seam, called only through qa.service."""
+"""P2 real-answer orchestration, called only through qa.service."""
+from collections.abc import Mapping
+from datetime import date
+from decimal import Decimal
+from math import isfinite
+from numbers import Integral, Real
+
+import pandas as pd
+
+from core import config
+from qa import auxiliary, cache, dependency, intents as I, llm_client
+from qa.entity_linker import Catalog
+from qa.retrieval import QueryUnavailable, Retrieval, ScopeMismatch
+
+
+def failure(message: str) -> dict:
+    return {
+        "ok": False, "intent": "", "slots": {}, "entities": {"resolved": {}, "candidates": []},
+        "data": [], "graph": {"nodes": [], "edges": []}, "conclusion": "", "cypher": "",
+        "mode": "rule", "error": message, "suggestions": [],
+    }
+
+
+def json_value(value):
+    if isinstance(value, Mapping):
+        return {str(key): json_value(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [json_value(item) for item in value]
+    if isinstance(value, str):
+        return value
+    if pd.isna(value):
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, Integral):
+        return int(value)
+    if isinstance(value, (Real, Decimal)):
+        number = float(value)
+        return number if isfinite(number) else None
+    if isinstance(value, date):
+        return value.isoformat()
+    if hasattr(value, "item"):
+        return json_value(value.item())
+    if hasattr(value, "iso_format"):  # Neo4j temporal types
+        return value.iso_format()
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    raise TypeError(f"unsupported evidence type {type(value).__name__}")
+
+
+_HIGHLIGHTS = {
+    I.TOP: ("applicant_std", "patent_count", "去重申请专利数"),
+    I.IPC: ("ipc_code", "patent_count", "该 IPC 关联专利数"),
+    I.COOP: ("partner", "weight", "共同申请专利数"),
+    I.TOPICS: ("topic", "patent_count", "该主题关联专利数"),
+    I.LAYOUT: ("partner", "weight", "共同申请专利数"),
+    I.TOPIC_APPLICANTS: ("applicant_std", "patent_count", "该主题关联专利数"),
+}
+
+
+def _highlight(intent, slots, rows):
+    first = rows[0]
+    if intent in _HIGHLIGHTS:
+        label, key, metric = _HIGHLIGHTS[intent]
+        return f'返回首项为「{first[label]}」，{metric}为 {first[key]} 件。'
+    if intent == I.INFLUENCE:
+        metric = slots["metric"]
+        label = {"cited_count": "被引次数", "pagerank": "PageRank", "degree": "度中心性", "betweenness": "中介中心性"}[metric]
+        return f'返回首项为「{first["applicant_std"]}」，{label}为 {first[metric]:.6g}。'
+    if intent == I.TREND:
+        return f'{first["year"]} 年有 {first["count"]} 件，{rows[-1]["year"]} 年有 {rows[-1]["count"]} 件相关专利。'
+    if intent == I.GROWTH:
+        return f'「{first["topic"]}」在返回主题中增长率最高，为 {first["growth_rate"]:.1%}，窗口内共 {first["patent_count"]} 件。'
+    if intent == I.PATENTS:
+        return f'按上述标准排首位的是专利 {first["patent_id"]}，样本内被引 {first["cited_count"]} 次。'
+    if intent == I.DEPENDENCY:
+        assessment = ("，达到潜在单点依赖筛选条件" if first["potential_single_point"] else
+                      "，未达到潜在单点依赖筛选条件" if first["single_point_assessed"] else "")
+        return (f'排名首位的外部主体为「{first["applicant_std"]}」，有 {first["c_AB"]} 条去重边，'
+                f'在 C_A={first["C_A"]} 的子集内暴露度为 {first["dependency_exposure"]:.1%}{assessment}；'
+                f'子集共涉及 {first["involved_applicants"]} 个外部主体。')
+    return (f'返回首项为「{first["applicant_std"]}」，'
+            f'在{first["citation_scope"]}口径下有 {first["citation_count"]} 条去重引用边。')
+
+
+def _sentences(intent, slots, retrieval, rows, requested_end):
+    scope = "P1 真实样例" if config.USE_SAMPLE else "P1 全量研究数据"
+    subject = f'「{retrieval.subject}」的' if retrieval.subject else ""
+    start, end = slots.get("start_year"), slots.get("end_year")
+    if intent == I.DEPENDENCY and rows:
+        start, end = rows[0]["start_year"], rows[0]["end_year"]
+    period = f"{start}—{end} 年（申请年）" if start is not None else "全部可用申请年"
+    description = f"本次使用 {scope}，统计{subject}相关记录，时间范围为{period}。"
+    if (requested_end and requested_end >= 2024) or (end is not None and end >= 2024):
+        description += "2024–2025 年数据不完整，趋势及增长计算只使用截至 2023 年的数据。" if intent in {
+            I.TREND, I.GROWTH} else "2024–2025 年的可用数据尚不完整。"
+    notes = "；".join(note.rstrip("。") for note in retrieval.notes) + "。" if retrieval.notes else ""
+    if rows:
+        observation = _highlight(intent, slots, rows)
+    elif intent == I.DEPENDENCY:
+        observation = "可映射外部引证边为零，当前证据不足以计算暴露度。"
+    else:
+        observation = "在当前范围内未查到满足条件的记录。"
+    final = dependency.PROXY_NOTE if intent == I.DEPENDENCY else (
+        "结果仅覆盖当前返回记录，请结合所列口径解读。" if rows else "可尝试修改主体、主题或时间窗口。"
+    )
+    return [description, notes or "当前结果基于所选范围内的 P1 数据。", observation, final]
+
+
+def _parse(question, try_llm):
+    rule = I.rule_intent(question)
+    if try_llm:
+        try:
+            intent, slots = llm_client.classify(question)
+            if intent and (not rule or rule == intent):
+                # Rule-readable parameters and explicit candidate confirmation have precedence.
+                return intent, {**slots, **I.rule_slots(question, intent)}, True
+        except llm_client.ModelUnavailable:
+            pass
+    return rule, I.rule_slots(question, rule) if rule else {}, False
 
 
 def answer(question: str, mode: str = "auto") -> dict:
     if mode not in {"auto", "rule", "llm"}:
         raise ValueError("mode must be auto, rule or llm")
-    return failure("真实问答引擎待 P2 实现；当前不会把演示数据作为真实答案。")
-
-
-def failure(message: str) -> dict:
-    return {
-        "ok": False,
-        "intent": "",
-        "slots": {},
-        "entities": {"resolved": {}, "candidates": []},
-        "data": [],
-        "graph": {"nodes": [], "edges": []},
-        "conclusion": "",
-        "cypher": "",
-        "mode": "rule",
-        "error": message,
-        "suggestions": [],
-    }
+    result = failure("请输入一个新能源汽车专利知识图谱问题。")
+    result["suggestions"] = list(I.EXAMPLES.values())
+    if not isinstance(question, str) or not question.strip():
+        return result
+    question = question.strip()
+    if len(question) > 1000:
+        result["error"] = "问题最多 1000 个字符，请保留一个问题。"
+        return result
+    try_llm = mode != "rule" and bool(config.LLM_API_KEY)
+    executed = []
+    retrieval = None
+    cache_key = cache.key(question)
+    try:
+        intent, raw, model_routed = _parse(question, try_llm)
+        if not intent:
+            result["error"] = "目前支持 12 类新能源汽车专利问题，请参考示例。"
+            return result
+        result["intent"] = intent
+        slots = I.validate(intent, raw)
+        result["slots"] = slots
+        aliases = auxiliary.aliases() if I.ENTITY_SLOT.get(intent) == "applicant" else {}
+        slot = I.ENTITY_SLOT.get(intent)
+        entity = None
+        if slot:
+            entity, candidates = Catalog(slot, aliases).link(question, slots.get(slot))
+            if entity is None and model_routed and slot in slots and slot not in I.rule_slots(question, intent):
+                entity, rule_candidates = Catalog(slot, aliases).link(question)
+                candidates = rule_candidates or candidates
+                if entity:
+                    slots.pop(slot)
+                    model_routed = False
+            if entity is None:
+                result["entities"]["candidates"] = candidates
+                result["error"] = "实体存在歧义或只有相近名称，请确认候选后重新查询。" if candidates else (
+                    "当前数据范围找不到该创新主体，请提供完整名称。" if slot == "applicant" else
+                    "当前数据范围找不到该技术主题，请提供图谱中的主题全名。")
+                return result
+            slots.setdefault(slot, entity.name)
+            result["entities"]["resolved"][slot] = entity.public
+        retrieval = Retrieval(intent, slots, entity, aliases, executed)
+        rows = json_value(retrieval.retrieve())
+        sentences = _sentences(intent, slots, retrieval, rows, raw.get("end_year"))
+        result.update(data=rows, graph=json_value(retrieval.graph.public), conclusion="".join(sentences))
+        if not rows:
+            result["error"] = "当前数据范围不足以回答这个问题。"
+            return result
+        result.update(ok=True, error=None, suggestions=[])
+        if retrieval.graph_verified and cache.key(question) == cache_key:
+            cache.remember(cache_key, {**result, "cypher": "\n\n".join(executed)})
+        if model_routed:
+            try:
+                result.update(conclusion=llm_client.organize(sentences), mode="llm")
+            except llm_client.ModelUnavailable:
+                pass
+    except QueryUnavailable as exc:
+        return cache.recover(cache_key) or {**result, "error": str(exc), "cypher": "\n\n".join(executed)}
+    except (I.InvalidSlots, auxiliary.DataUnavailable, ScopeMismatch) as exc:
+        result["error"] = str(exc)
+    except (OSError, ValueError, KeyError, TypeError, ImportError):
+        result["error"] = "P1 数据文件缺失、不可读或不符合契约，请核对数据和依赖配置。"
+    finally:
+        result["cypher"] = "\n\n".join(executed)
+    return result
