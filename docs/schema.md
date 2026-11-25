@@ -50,7 +50,7 @@ CREATE INDEX patent_country_v2 IF NOT EXISTS FOR (n:Patent) ON (n.country);
 
 日期为 ISO YYYY-MM-DD 字符串，apply_year 为可空整数，标志为可空布尔，weight 为正整数，其余为字符串。缺失留 null，不伪造数据。country 是公开国别，不替代 Applicant.country。被引主体为可空单主体标量，无法确定唯一主体时留空；多申请人依赖分析沿图关系取完整集合。
 
-`USE_SAMPLE=true` 读 `data/_sample/`，false 读 `data/processed/`，同名同列、不静默回退。当前样例主题 / 功效两表为空，旧日期混合公开 / 申请 / 优先权，不可映射申请年。
+`USE_SAMPLE=true` 读 `data/_sample/`（481 件真实样例，主题 / 功效已非空），false 读 `data/processed/`，同名同列、不静默回退。样例仅用于开发，规模 / 趋势结论用全量。
 
 ## 只读接口
 
