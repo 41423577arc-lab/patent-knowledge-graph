@@ -1,0 +1,339 @@
+{
+  "status": "pass",
+  "generated_at": "2026-11-25T15:45:10",
+  "use_sample": false,
+  "tables": {
+    "patents": {
+      "rows": 106393,
+      "columns": [
+        "patent_id",
+        "title",
+        "abstract",
+        "apply_date",
+        "apply_year",
+        "pub_date",
+        "patent_type",
+        "country",
+        "legal_status",
+        "is_in_sample"
+      ],
+      "dtypes": {
+        "patent_id": "string",
+        "title": "string",
+        "abstract": "string",
+        "apply_date": "string",
+        "apply_year": "Int64",
+        "pub_date": "string",
+        "patent_type": "string",
+        "country": "string",
+        "legal_status": "string",
+        "is_in_sample": "bool"
+      }
+    },
+    "applicants": {
+      "rows": 115927,
+      "columns": [
+        "patent_id",
+        "applicant_raw",
+        "applicant_std",
+        "applicant_type",
+        "is_first"
+      ],
+      "dtypes": {
+        "patent_id": "string",
+        "applicant_raw": "string",
+        "applicant_std": "string",
+        "applicant_type": "string",
+        "is_first": "boolean"
+      }
+    },
+    "patent_ipc": {
+      "rows": 306023,
+      "columns": [
+        "patent_id",
+        "ipc_code",
+        "is_main"
+      ],
+      "dtypes": {
+        "patent_id": "string",
+        "ipc_code": "string",
+        "is_main": "boolean"
+      }
+    },
+    "patent_topic": {
+      "rows": 104723,
+      "columns": [
+        "patent_id",
+        "topic",
+        "domain"
+      ],
+      "dtypes": {
+        "patent_id": "string",
+        "topic": "string",
+        "domain": "string"
+      }
+    },
+    "patent_efficacy": {
+      "rows": 391642,
+      "columns": [
+        "patent_id",
+        "efficacy_l1",
+        "efficacy_l2",
+        "efficacy_l3"
+      ],
+      "dtypes": {
+        "patent_id": "string",
+        "efficacy_l1": "string",
+        "efficacy_l2": "string",
+        "efficacy_l3": "string"
+      }
+    },
+    "citations": {
+      "rows": 442917,
+      "columns": [
+        "citing_id",
+        "cited_id",
+        "cited_in_sample",
+        "cited_applicant_std"
+      ],
+      "dtypes": {
+        "citing_id": "string",
+        "cited_id": "string",
+        "cited_in_sample": "boolean",
+        "cited_applicant_std": "string"
+      }
+    },
+    "cooperation": {
+      "rows": 9826,
+      "columns": [
+        "app_a",
+        "app_b",
+        "weight"
+      ],
+      "dtypes": {
+        "app_a": "string",
+        "app_b": "string",
+        "weight": "int64"
+      }
+    }
+  },
+  "checks": [
+    {
+      "name": "seven_tables_available",
+      "status": "pass",
+      "detail": "available=['applicants', 'citations', 'cooperation', 'patent_efficacy', 'patent_ipc', 'patent_topic', 'patents']"
+    },
+    {
+      "name": "patents_columns",
+      "status": "pass",
+      "detail": "rows=106393, cols=10"
+    },
+    {
+      "name": "applicants_columns",
+      "status": "pass",
+      "detail": "rows=115927, cols=5"
+    },
+    {
+      "name": "patent_ipc_columns",
+      "status": "pass",
+      "detail": "rows=306023, cols=3"
+    },
+    {
+      "name": "patent_topic_columns",
+      "status": "pass",
+      "detail": "rows=104723, cols=3"
+    },
+    {
+      "name": "patent_efficacy_columns",
+      "status": "pass",
+      "detail": "rows=391642, cols=4"
+    },
+    {
+      "name": "citations_columns",
+      "status": "pass",
+      "detail": "rows=442917, cols=4"
+    },
+    {
+      "name": "cooperation_columns",
+      "status": "pass",
+      "detail": "rows=9826, cols=3"
+    },
+    {
+      "name": "patents_patent_id_unique",
+      "status": "pass",
+      "detail": "rows=106393, unique=106393"
+    },
+    {
+      "name": "patents_patent_id_nonnull",
+      "status": "pass",
+      "detail": "null=0"
+    },
+    {
+      "name": "applicants_fk",
+      "status": "pass",
+      "detail": "orphans=0"
+    },
+    {
+      "name": "applicants_required_nonnull",
+      "status": "pass",
+      "detail": "nulls={'patent_id': 0, 'applicant_std': 0, 'is_first': 0}"
+    },
+    {
+      "name": "applicants_no_duplicate_pair",
+      "status": "pass",
+      "detail": "dups=0"
+    },
+    {
+      "name": "applicants_one_first_per_patent",
+      "status": "pass",
+      "detail": "groups=106353, bad=0"
+    },
+    {
+      "name": "ipc_fk",
+      "status": "pass",
+      "detail": "orphans=0"
+    },
+    {
+      "name": "ipc_required_nonnull",
+      "status": "pass",
+      "detail": "nulls={'patent_id': 0, 'ipc_code': 0, 'is_main': 0}"
+    },
+    {
+      "name": "ipc_no_duplicate_pair",
+      "status": "pass",
+      "detail": "dups=0"
+    },
+    {
+      "name": "ipc_at_most_one_main",
+      "status": "pass",
+      "detail": "groups=85946, bad=0"
+    },
+    {
+      "name": "topic_fk",
+      "status": "pass",
+      "detail": "orphans=0"
+    },
+    {
+      "name": "topic_required_nonnull",
+      "status": "pass",
+      "detail": "nulls={'patent_id': 0, 'topic': 0, 'domain': 0}"
+    },
+    {
+      "name": "topic_no_duplicate_pair",
+      "status": "pass",
+      "detail": "dups=0"
+    },
+    {
+      "name": "efficacy_fk",
+      "status": "pass",
+      "detail": "orphans=0"
+    },
+    {
+      "name": "efficacy_required_nonnull",
+      "status": "pass",
+      "detail": "null patent_id=0"
+    },
+    {
+      "name": "efficacy_has_content",
+      "status": "pass",
+      "detail": "empty_rows=0"
+    },
+    {
+      "name": "efficacy_no_duplicate_triple",
+      "status": "pass",
+      "detail": "dups=0"
+    },
+    {
+      "name": "citations_citing_fk",
+      "status": "pass",
+      "detail": "orphans=0"
+    },
+    {
+      "name": "citations_true_cited_fk",
+      "status": "pass",
+      "detail": "orphans=0"
+    },
+    {
+      "name": "citations_false_not_in_sample",
+      "status": "pass",
+      "detail": "overlap=0"
+    },
+    {
+      "name": "citations_no_duplicate_edge",
+      "status": "pass",
+      "detail": "dups=0"
+    },
+    {
+      "name": "cooperation_fk",
+      "status": "pass",
+      "detail": "orphans_a=0, orphans_b=0"
+    },
+    {
+      "name": "cooperation_order",
+      "status": "pass",
+      "detail": "app_a < app_b"
+    },
+    {
+      "name": "cooperation_weight_positive",
+      "status": "pass",
+      "detail": "min=1, max=553"
+    },
+    {
+      "name": "cooperation_no_duplicate_pair",
+      "status": "pass",
+      "detail": "dups=0"
+    },
+    {
+      "name": "dtypes",
+      "status": "pass",
+      "detail": {
+        "patents.apply_year": "Int64",
+        "patents.is_in_sample": "bool",
+        "applicants.is_first": "boolean",
+        "patent_ipc.is_main": "boolean",
+        "citations.cited_in_sample": "boolean",
+        "cooperation.weight": "int64"
+      }
+    }
+  ],
+  "warnings": [
+    "82 件专利没有 is_main=True 的 IPC",
+    "40 件专利没有申请人",
+    "868 件非外观设计没有 IPC",
+    "15327 件非外观设计没有主题",
+    "9197 件非外观设计没有功效",
+    "2931 条申请关系 applicant_type 为空",
+    "引用边 442,917；样本内 35,114；外部 407,803",
+    "P1-5 只校验契约结构；数据质量抽样与别名表在 P1-8 处理。"
+  ],
+  "counts": {
+    "patents": 106393,
+    "patents_by_type": {
+      "发明授权": 42678,
+      "实用新型": 24511,
+      "发明申请": 19625,
+      "外观设计": 19579
+    },
+    "design_patents": 19579,
+    "non_design_patents": 86814,
+    "applicants_rows": 115927,
+    "unique_applicants": 27557,
+    "patents_with_applicants": 106353,
+    "patent_ipc_rows": 306023,
+    "unique_ipc": 13166,
+    "patents_with_ipc": 85946,
+    "patent_topic_rows": 104723,
+    "unique_topics": 50,
+    "unique_domains": 8,
+    "patents_with_topic": 71487,
+    "patent_efficacy_rows": 391642,
+    "patents_with_efficacy": 77617,
+    "citations_rows": 442917,
+    "citations_in_sample": 35114,
+    "citations_external": 407803,
+    "citations_with_applicant": 41395,
+    "cooperation_rows": 9826,
+    "cooperation_max_weight": 553
+  },
+  "elapsed_sec": 3.8
+}

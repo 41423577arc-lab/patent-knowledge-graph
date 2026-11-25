@@ -1,0 +1,109 @@
+{
+  "source_reps": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\results\\_tech_sample\\representatives.parquet",
+  "sample_mode": true,
+  "patents": 1005,
+  "representatives": 1005,
+  "citations": {
+    "rows_with_cites": 562,
+    "raw_cited_tokens": 4492,
+    "invalid_tokens": 0,
+    "self_edges_skipped": 0,
+    "unique_edges": 4492,
+    "in_sample_edges": 3,
+    "external_edges": 4489,
+    "in_sample_rate": 0.0007,
+    "edges_with_applicant": 71,
+    "applicant_coverage": 0.0158,
+    "external_edges_with_applicant": 85,
+    "external_applicant_coverage": 0.0189,
+    "external_applicant_rows": 170,
+    "tokens_with_multiple_applicants": 14,
+    "citing_patents_with_edges": 562,
+    "base_collisions": 0,
+    "rows_with_cited_by": 353
+  },
+  "cooperation": {
+    "multi_applicant_patents": 63,
+    "pairs": 119,
+    "max_weight": 6,
+    "top_pairs": [
+      {
+        "app_a": "Kia Corporation",
+        "app_b": "现代公司",
+        "weight": 6
+      },
+      {
+        "app_a": "中国南方",
+        "app_b": "重庆长安3",
+        "weight": 4
+      },
+      {
+        "app_a": "Atum",
+        "app_b": "Han, Taek Soo",
+        "weight": 2
+      },
+      {
+        "app_a": "Tardis Technology. Inc.",
+        "app_b": "주식회사 타디스테크놀로지",
+        "weight": 2
+      },
+      {
+        "app_a": "Juing Gun Sik",
+        "app_b": "Jung Jung In",
+        "weight": 1
+      },
+      {
+        "app_a": "Dhg Co Ltd",
+        "app_b": "Korea Textile Machinery Convergence Res Institute",
+        "weight": 1
+      },
+      {
+        "app_a": "Baek Jong Un",
+        "app_b": "Kim Steve",
+        "weight": 1
+      },
+      {
+        "app_a": "协昌电子",
+        "app_b": "协昌电子科技(苏州)有限公司",
+        "weight": 1
+      },
+      {
+        "app_a": "吉利汽车",
+        "app_b": "浙江吉利新能源商用车集团有限公司",
+        "weight": 1
+      },
+      {
+        "app_a": "吉利汽车",
+        "app_b": "远程商用",
+        "weight": 1
+      },
+      {
+        "app_a": "浙江吉利新能源商用车集团有限公司",
+        "app_b": "远程商用",
+        "weight": 1
+      },
+      {
+        "app_a": "East China Electric Power Test Research Institute Co., Ltd.",
+        "app_b": "Shanghai University Of Electric Power",
+        "weight": 1
+      },
+      {
+        "app_a": "East China Electric Power Test Research Institute Co., Ltd.",
+        "app_b": "国家电网",
+        "weight": 1
+      },
+      {
+        "app_a": "Shanghai University Of Electric Power",
+        "app_b": "国家电网",
+        "weight": 1
+      },
+      {
+        "app_a": "太原理工大学",
+        "app_b": "苏州博劳科斯信息技术有限公司",
+        "weight": 1
+      }
+    ]
+  },
+  "elapsed_sec": 0.3,
+  "external_applicants_path": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\results\\_relations_sample\\external_citation_applicants.parquet"
+}

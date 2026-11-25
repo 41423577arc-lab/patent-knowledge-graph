@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-11-25T20:07:07",
+  "source": "data/results/representatives.parquet::cited_applicants",
+  "patents_total": 106393,
+  "patents_with_cited_applicants": 31185,
+  "patents_used_for_pairs": 31183,
+  "pairs": 135007,
+  "unique_citing_companies": 11263,
+  "unique_cited_companies": 40858,
+  "pair_patent_links": 165355,
+  "self_links_dropped": 5946,
+  "alias_rows": 393,
+  "top_pairs": [
+    {
+      "citing_company": "现代公司",
+      "cited_company": "起亚",
+      "citing_patent_count": 619
+    },
+    {
+      "citing_company": "丰田公司",
+      "cited_company": "本田公司",
+      "citing_patent_count": 118
+    },
+    {
+      "citing_company": "现代公司",
+      "cited_company": "丰田公司",
+      "citing_patent_count": 97
+    },
+    {
+      "citing_company": "索尼公司",
+      "cited_company": "村田",
+      "citing_patent_count": 96
+    },
+    {
+      "citing_company": "三菱公司",
+      "cited_company": "丰田公司",
+      "citing_patent_count": 94
+    },
+    {
+      "citing_company": "本田公司",
+      "cited_company": "丰田公司",
+      "citing_patent_count": 94
+    },
+    {
+      "citing_company": "日产公司",
+      "cited_company": "丰田公司",
+      "citing_patent_count": 76
+    },
+    {
+      "citing_company": "国家电网",
+      "cited_company": "中国电力科学研究院有限公司",
+      "citing_patent_count": 74
+    },
+    {
+      "citing_company": "现代公司",
+      "cited_company": "福特汽车",
+      "citing_patent_count": 73
+    },
+    {
+      "citing_company": "丰田公司",
+      "cited_company": "电装公司",
+      "citing_patent_count": 68
+    },
+    {
+      "citing_company": "丰田公司",
+      "cited_company": "现代公司",
+      "citing_patent_count": 62
+    },
+    {
+      "citing_company": "三菱公司",
+      "cited_company": "本田公司",
+      "citing_patent_count": 59
+    },
+    {
+      "citing_company": "北汽集团",
+      "cited_company": "中国一汽",
+      "citing_patent_count": 59
+    },
+    {
+      "citing_company": "国家电网",
+      "cited_company": "国网上海市电力公司",
+      "citing_patent_count": 59
+    },
+    {
+      "citing_company": "奥动新能源",
+      "cited_company": "Shanghai Dianba New Energy Technology Co., Ltd.",
+      "citing_patent_count": 58
+    }
+  ],
+  "notes": [
+    "One citing patent contributes at most once to a (citing, cited) pair.",
+    "cited_applicants is a flat list across all cited patents; this is an aggregate, not an exact edge.",
+    "Self pairs are dropped.",
+    "Company names use company_alias.csv when an alias exists; contract tables are unchanged.",
+    "cited_applicants does not distinguish company/university/individual; the table is subject-level, despite the company_ prefix."
+  ]
+}

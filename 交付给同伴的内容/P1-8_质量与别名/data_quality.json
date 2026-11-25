@@ -1,0 +1,516 @@
+{
+  "generated_at": "2026-11-25T20:09:22",
+  "graph_status": "ok",
+  "dataset": {
+    "raw_rows": 142112,
+    "raw_columns": 204,
+    "unique_application_numbers": 106393,
+    "patents": 106393,
+    "rows_removed_by_dedup": 35719,
+    "patents_by_type": {
+      "发明授权": 42678,
+      "实用新型": 24511,
+      "发明申请": 19625,
+      "外观设计": 19579
+    },
+    "patents_by_country_top": {
+      "中国": 69924,
+      "韩国": 11560,
+      "日本": 7134,
+      "美国": 6845,
+      "德国": 3317,
+      "欧洲专利局": 2148,
+      "中国台湾": 1056,
+      "印度": 890,
+      "法国": 608,
+      "英国": 500,
+      "西班牙": 278,
+      "印度尼西亚": 236,
+      "巴西": 207,
+      "意大利": 182,
+      "加拿大": 173
+    },
+    "patents_by_apply_year_2010_plus": {
+      "2010": 1639,
+      "2011": 2537,
+      "2012": 2986,
+      "2013": 2664,
+      "2014": 3018,
+      "2015": 3782,
+      "2016": 5761,
+      "2017": 6826,
+      "2018": 8823,
+      "2019": 10692,
+      "2020": 12316,
+      "2021": 11776,
+      "2022": 11552,
+      "2023": 10905,
+      "2024": 6519,
+      "2025": 236
+    },
+    "apply_year_min_max": [
+      1962,
+      2025
+    ],
+    "pub_year_min_max": [
+      1969,
+      2025
+    ],
+    "apply_2024": 6519,
+    "apply_2025": 236,
+    "pub_2024": 13938,
+    "pub_2025": 6976,
+    "legal_status": {
+      "授权": 91361,
+      "驳回": 15032
+    },
+    "tables": {
+      "patents": 106393,
+      "applicants": 115927,
+      "patent_ipc": 306023,
+      "patent_topic": 104723,
+      "patent_efficacy": 391642,
+      "citations": 442917,
+      "cooperation": 9826
+    },
+    "applicants": {
+      "rows": 115927,
+      "unique_std": 27557,
+      "patents_with_applicant": 106353,
+      "patents_without_applicant": 40,
+      "multi_applicant_patents": 6704,
+      "type_counts": {
+        "企业": 60131,
+        "境外/未知": 41319,
+        "个人": 5973,
+        "学校": 4997,
+        "(空)": 2931,
+        "科研单位": 495,
+        "机关团体": 63,
+        "其他": 18
+      },
+      "type_missing": 2931
+    },
+    "batches": {
+      "source_files": {
+        "2025-08-07-10.xlsx": 10000,
+        "2025-08-07-2.xlsx": 10000,
+        "2025-08-07-3.xlsx": 10000,
+        "2025-08-07-4.xlsx": 10000,
+        "2025-08-07-5.xlsx": 10000,
+        "2025-08-07-6.xlsx": 10000,
+        "2025-08-07-8.xlsx": 10000,
+        "2025-08-07-9.xlsx": 10000,
+        "2025-08-08-3.xlsx": 10000,
+        "2025-08-08-4.xlsx": 10000,
+        "2025-08-08-5.xlsx": 10000,
+        "2025-08-08-6.xlsx": 10000,
+        "2025-08-08.xlsx": 10000,
+        "2025-08-07.xlsx": 5125,
+        "2025-08-08-2.xlsx": 4155,
+        "2025-08-07-7.xlsx": 2832
+      },
+      "sample_legal_status": {
+        "all_authorized": 14,
+        "all_rejected": 2,
+        "mixed": 0,
+        "sample_rows_per_batch": 63
+      },
+      "note": "legal-status split is from the 1,008-row raw sample (63 rows/batch); full batch status not re-read"
+    }
+  },
+  "quality": {
+    "check_status": "pass",
+    "checks_total": 34,
+    "checks_passed": 34,
+    "warnings": [
+      "82 件专利没有 is_main=True 的 IPC",
+      "40 件专利没有申请人",
+      "868 件非外观设计没有 IPC",
+      "15327 件非外观设计没有主题",
+      "9197 件非外观设计没有功效",
+      "2931 条申请关系 applicant_type 为空",
+      "引用边 442,917；样本内 35,114；外部 407,803",
+      "P1-5 只校验契约结构；数据质量抽样与别名表在 P1-8 处理。"
+    ],
+    "coverage": {
+      "non_design_patents": 86814,
+      "ipc_patents": 85946,
+      "ipc_pct": 99.0,
+      "topic_patents": 71487,
+      "topic_pct": 82.35,
+      "efficacy_patents": 77617,
+      "efficacy_pct": 89.41,
+      "topic_rows": 104723,
+      "topic_keyword_rows": 87884,
+      "topic_fallback_rows": 16839,
+      "topic_fallback_patents": 16839,
+      "topics": {
+        "驱动电机": 17533,
+        "充电桩": 7146,
+        "整车结构": 6876,
+        "整车电控（未细分）": 6730,
+        "减速器与传动": 5380,
+        "电池成组与结构": 5060,
+        "电机控制": 4719,
+        "制造工艺": 4386,
+        "电控与功率器件": 3494,
+        "能量管理": 3105,
+        "换电": 3033,
+        "电池（未细分）": 2600,
+        "电池热管理": 2481,
+        "充电控制": 2430,
+        "电池管理系统": 2426,
+        "充电（未细分）": 2315,
+        "整车热管理": 2292,
+        "车规芯片": 1903,
+        "整车控制": 1849,
+        "智能控制（未细分）": 1791
+      },
+      "unsegmented_topics": {
+        "整车电控（未细分）": 6730,
+        "电池（未细分）": 2600,
+        "充电（未细分）": 2315,
+        "智能控制（未细分）": 1791,
+        "整车动力（未细分）": 1218,
+        "整车控制（未细分）": 965,
+        "测试（未细分）": 634,
+        "热管理（未细分）": 324,
+        "电机（未细分）": 169,
+        "电机控制（未细分）": 93
+      },
+      "topic_policy": {
+        "coverage_pct": 82.35,
+        "fallback_rows": 16839,
+        "fallback_share_of_topic_rows_pct": 16.08,
+        "fallback_is_separate": true,
+        "decision": "（未细分）单列；宽泛词风险已量化，未重跑词典以免破坏已交付样例/图谱，P1-10 可继续调",
+        "broad_keyword_note": "电机、热管理、空调、装配等宽泛词仍可能过匹配；页面不要把（未细分）计入细粒度主题排名"
+      }
+    },
+    "missing": {
+      "patents": {
+        "title": 10,
+        "abstract": 1275,
+        "apply_date": 4,
+        "apply_year": 4,
+        "pub_date": 8,
+        "patent_type": 0,
+        "country": 0,
+        "legal_status": 0
+      },
+      "applicant_type_missing": 2931,
+      "applicant_type_foreign_unknown": 41319
+    },
+    "citations": {
+      "edges": 442917,
+      "in_sample_edges": 35114,
+      "external_edges": 407803,
+      "in_sample_pct": 7.93,
+      "citing_patents": 50663,
+      "edges_with_cited_applicant": 41395,
+      "edges_with_cited_applicant_pct": 9.35,
+      "external_edges_with_cited_applicant": 15908,
+      "external_with_cited_applicant_pct": 3.9,
+      "external_edges_with_scalar_applicant": 11168,
+      "external_with_scalar_applicant_pct": 2.74,
+      "external_applicant_rows": 46539,
+      "external_applicant_citing_patents": 9441
+    },
+    "cooperation": {
+      "edges": 9826,
+      "multi_applicant_patents": 6704,
+      "top": [
+        {
+          "app_a": "中国南方",
+          "app_b": "重庆长安3",
+          "weight": 117
+        },
+        {
+          "app_a": "特来电新",
+          "app_b": "特锐德司",
+          "weight": 34
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "清华大学",
+          "weight": 9
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "山东农业2",
+          "weight": 1
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "许继电气",
+          "weight": 32
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "许继集团",
+          "weight": 36
+        },
+        {
+          "app_a": "许继电气",
+          "app_b": "许继集团",
+          "weight": 47
+        },
+        {
+          "app_a": "Shenzhen Byd Auto R&D Company Limited",
+          "app_b": "比亚迪司",
+          "weight": 30
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "武汉大学",
+          "weight": 18
+        },
+        {
+          "app_a": "东南大学",
+          "app_b": "国家电网",
+          "weight": 50
+        }
+      ]
+    },
+    "aliases": {
+      "generated_at": "2026-11-25T20:06:48",
+      "alias_rows": 393,
+      "manual_aliases": 116,
+      "auto_ascii_aliases": 276,
+      "pending_review": 1,
+      "covered_applicant_rows": 9280,
+      "covered_patents": 9151,
+      "cooperation_raw_edges": 9826,
+      "cooperation_merged_edges": 9750,
+      "dropped_self_loops": 22,
+      "companies_after_merge": 27190,
+      "top_companies": [
+        {
+          "company": "现代公司",
+          "patents": 4008
+        },
+        {
+          "company": "丰田公司",
+          "patents": 2199
+        },
+        {
+          "company": "台铃科技",
+          "patents": 1838
+        },
+        {
+          "company": "本田公司",
+          "patents": 1602
+        },
+        {
+          "company": "国家电网",
+          "patents": 1593
+        },
+        {
+          "company": "爱玛科技",
+          "patents": 1467
+        },
+        {
+          "company": "比亚迪",
+          "patents": 1244
+        },
+        {
+          "company": "北汽集团",
+          "patents": 1117
+        },
+        {
+          "company": "三菱公司",
+          "patents": 1057
+        },
+        {
+          "company": "雅迪科技",
+          "patents": 1012
+        },
+        {
+          "company": "日产公司",
+          "patents": 897
+        },
+        {
+          "company": "福特汽车",
+          "patents": 864
+        },
+        {
+          "company": "奥动新能源",
+          "patents": 738
+        },
+        {
+          "company": "奇瑞汽车",
+          "patents": 695
+        },
+        {
+          "company": "东风汽车",
+          "patents": 638
+        }
+      ],
+      "top_cooperation": [
+        {
+          "app_a": "现代公司",
+          "app_b": "起亚",
+          "weight": 595
+        },
+        {
+          "app_a": "中国南方",
+          "app_b": "重庆长安",
+          "weight": 117
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "国电南瑞",
+          "weight": 90
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "浙江浙电",
+          "weight": 64
+        },
+        {
+          "app_a": "东南大学",
+          "app_b": "国家电网",
+          "weight": 50
+        },
+        {
+          "app_a": "许继电气",
+          "app_b": "许继集团",
+          "weight": 47
+        },
+        {
+          "app_a": "丰田公司",
+          "app_b": "斯巴鲁",
+          "weight": 44
+        },
+        {
+          "app_a": "Chaevi Co., Ltd.",
+          "app_b": "채비(주)",
+          "weight": 41
+        },
+        {
+          "app_a": "国家电网",
+          "app_b": "许继集团",
+          "weight": 36
+        },
+        {
+          "app_a": "日产公司",
+          "app_b": "雷诺公司",
+          "weight": 35
+        }
+      ],
+      "missing_manual_keys": [],
+      "notes": [
+        "Kia and Hyundai are separate canonical groups.",
+        "中国南方 is pending_review and not merged.",
+        "Contract applicants/cooperation tables are unchanged."
+      ]
+    },
+    "company_citations": {
+      "generated_at": "2026-11-25T20:07:07",
+      "source": "data/results/representatives.parquet::cited_applicants",
+      "patents_total": 106393,
+      "patents_with_cited_applicants": 31185,
+      "patents_used_for_pairs": 31183,
+      "pairs": 135007,
+      "unique_citing_companies": 11263,
+      "unique_cited_companies": 40858,
+      "pair_patent_links": 165355,
+      "self_links_dropped": 5946,
+      "alias_rows": 393,
+      "top_pairs": [
+        {
+          "citing_company": "现代公司",
+          "cited_company": "起亚",
+          "citing_patent_count": 619
+        },
+        {
+          "citing_company": "丰田公司",
+          "cited_company": "本田公司",
+          "citing_patent_count": 118
+        },
+        {
+          "citing_company": "现代公司",
+          "cited_company": "丰田公司",
+          "citing_patent_count": 97
+        },
+        {
+          "citing_company": "索尼公司",
+          "cited_company": "村田",
+          "citing_patent_count": 96
+        },
+        {
+          "citing_company": "三菱公司",
+          "cited_company": "丰田公司",
+          "citing_patent_count": 94
+        },
+        {
+          "citing_company": "本田公司",
+          "cited_company": "丰田公司",
+          "citing_patent_count": 94
+        },
+        {
+          "citing_company": "日产公司",
+          "cited_company": "丰田公司",
+          "citing_patent_count": 76
+        },
+        {
+          "citing_company": "国家电网",
+          "cited_company": "中国电力科学研究院有限公司",
+          "citing_patent_count": 74
+        },
+        {
+          "citing_company": "现代公司",
+          "cited_company": "福特汽车",
+          "citing_patent_count": 73
+        },
+        {
+          "citing_company": "丰田公司",
+          "cited_company": "电装公司",
+          "citing_patent_count": 68
+        },
+        {
+          "citing_company": "丰田公司",
+          "cited_company": "现代公司",
+          "citing_patent_count": 62
+        },
+        {
+          "citing_company": "三菱公司",
+          "cited_company": "本田公司",
+          "citing_patent_count": 59
+        },
+        {
+          "citing_company": "北汽集团",
+          "cited_company": "中国一汽",
+          "citing_patent_count": 59
+        },
+        {
+          "citing_company": "国家电网",
+          "cited_company": "国网上海市电力公司",
+          "citing_patent_count": 59
+        },
+        {
+          "citing_company": "奥动新能源",
+          "cited_company": "Shanghai Dianba New Energy Technology Co., Ltd.",
+          "citing_patent_count": 58
+        }
+      ],
+      "notes": [
+        "One citing patent contributes at most once to a (citing, cited) pair.",
+        "cited_applicants is a flat list across all cited patents; this is an aggregate, not an exact edge.",
+        "Self pairs are dropped.",
+        "Company names use company_alias.csv when an alias exists; contract tables are unchanged.",
+        "cited_applicants does not distinguish company/university/individual; the table is subject-level, despite the company_ prefix."
+      ]
+    },
+    "known_issues": [
+      "40 patents have no applicant.",
+      "868 non-design patents have no IPC; 82 have no main IPC.",
+      "15,327 non-design patents have no topic; 16,839 topic rows are IPC fallback (（未细分）).",
+      "9,197 non-design patents have no efficacy.",
+      "2,931 applicant rows have null applicant_type.",
+      "17 citation base collisions after kind-code stripping; 2 date anomalies nulled.",
+      "2024-2025 data is incomplete; trend analysis uses 2010/2015-2023."
+    ]
+  }
+}

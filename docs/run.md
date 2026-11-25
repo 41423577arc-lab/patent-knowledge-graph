@@ -1,5 +1,7 @@
 # 环境、启动与迁移（P1）
 
+> 交接说明见 [handoff.md](handoff.md)，页面口径见 [page_metrics.md](page_metrics.md)。
+
 Python 3.10+，在仓库根目录运行：
 
 ```powershell
@@ -9,49 +11,47 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 python -m scripts.seed_sample
 python -m eval.check_contracts
-python -m eval.check_metrics
 python -m eval.smoke_test
 python -m streamlit run app.py
 ```
 
-Copy-Item 仅在无 .env 时执行，保留已有本地配置。默认 USE_SAMPLE=true、QA_BACKEND=mock，不连接数据库 / 模型。不要自动加入旧 pylibs/，二进制扩展可能属于另一 Python 版本。修改 .env 后重启；NEO4J_* 优先，KG_NEO4J_* 为兼容名，默认无密码 / API 密钥。
+Copy-Item 仅在无 .env 时执行，保留已有本地配置。默认样例模式不连接数据库 / 模型。不要自动加入旧 pylibs/，二进制扩展可能属于另一 Python 版本。修改 .env 后重启；NEO4J_* 优先，KG_NEO4J_* 为兼容名，默认无密码 / API 密钥。
 
 ## 样例边界
 
-seed_sample 固定取旧 patents.csv 前 150 条，附带申请人、主 IPC、引用及共同申请关系。引用目标可在子集外，manifest.json 记录来源、选择与缺失项。
+`python -m scripts.seed_sample` 从 `data/processed/` 的七张全量表重建 `data/_sample/`：400 件按专利类型 / 主主题领域 / 申请年段分层抽样，再加 50 件基础集引用最多的专利和 31 件二跳引用专利，共 **481 件**。七表按同一 `patent_id` 过滤；`cooperation` 由样例内申请人重新配对生成。选择明细见 `data/results/sample_selection.csv`，统计见 `data/_sample/manifest.json`。
 
-旧导出不能可靠恢复摘要、申请日期 / 年份、公开日期、专利类型、原始申请人、主体类型和第一申请人标志，字段留空。主题 / 功效两表仅有列定义，暂零行。公开国别从公开号前缀提取。此开发子集不能用于全量趋势或对外指标。
+样例字段完整：摘要缺失 6 件、申请日缺失 3 件，主题 / 功效不再为空。非外观设计 IPC 覆盖 99.5%、主题 85.7%、功效 90.2%；样本内引用边 82 条。引用目标可在子集外，`cited_in_sample` 已按样例重新计算。
 
-## 全量与新图谱（待 P1）
+这是**开发样例**，不是统计抽样：引用闭包故意多选被引专利，专利类型比例也偏离全量。不能用于对外规模 / 趋势结论；全量数字看 `data/results/scale.json` 和 `docs/data_profile.md`。
 
-1. 原始导出放 data/raw/，不入 Git。
-2. 实现 scripts/clean_data.py，从真实源字段输出七表到 data/processed/。
-3. 实现 scripts/extract_entities.py 的主题 / 功效，完善日期与主体实体对齐。
-4. 实现 scripts/build_graph.py，按 docs/schema.md 建图并输出真实 scale.json。
-5. 设置 USE_SAMPLE=false，执行 python -m scripts.calculate_metrics，生成 data/results/ 下的两张全量结果表及清单。
-6. 配置凭据，QA_BACKEND=real，重启并验证真实问答（待 P2 完成）。
+## 全量七表与 Neo4j
 
-这三个脚本目前明确退出提示待实现，不清库、不伪造成功。scale.json 在建图前 status=pending、规模为 null。全量目录为空会明确报错，不回退样例。这些是尚未完成的业务交付。
+1. 原始导出放 `data/raw/原始专利汇总.xlsx`，不入 Git。
+2. `python -m scripts.clean_data` 生成 `patents` / `applicants`。
+3. `python -m scripts.extract_entities` 生成 `patent_ipc` / `patent_topic` / `patent_efficacy`。
+4. `python -m scripts.build_relations` 生成 `citations` / `cooperation`。
+5. `python -m scripts.validate_tables` 做七表契约校验（`USE_SAMPLE=false`）。
+6. 启动 Neo4j Desktop 本地实例，配置 `.env` 的 `NEO4J_URI` / `NEO4J_USER` / `NEO4J_PASSWORD`。
+7. `python -m scripts.build_graph` 按 `docs/schema.md` 建图并写 `data/results/scale.json`；节点/关系计数与 parquet 不一致会失败。
+8. `USE_SAMPLE=false`，重启验证图查询。
+9. `python -m scripts.build_company_alias` 生成展示层别名、合并合作边、企业专利数。
+10. `python -m scripts.build_company_citations` 生成企业级引用聚合（口径 C）。
+11. `python -m scripts.build_quality_report` 生成/更新 `scale.json`、`data_quality.json`、`manual_sample_100.csv`、`topic_quality.csv`。
 
-## 旧六页演示
+`data/processed/` 为空时 `load_table` 会明确报错，不回退样例。全量图已导入：Patent 106,393、Applicant 27,557、IPC 13,166、Technology 50、Domain 8；六类关系共 571,663 条（Neo4j 2026.10.2，Desktop 本地实例）。
 
-旧 Schema 为 Company / Inventor / TechClass / Patent.id，与新契约不同，现有数据库没有修改。填入 .env 的真实 Neo4j 密码后：
+### 辅助表（P1-8，展示层）
 
-```powershell
-powershell -File scripts/start_legacy.ps1
-```
+- `data/results/company_alias.csv`、`cooperation_merged.parquet`、`company_patent_counts.csv`：别名与企业级合作；契约表不改。
+- `data/results/company_citation_pairs.parquet`、`company_citation_summary.json`：企业级引用聚合；不是精确专利边。
+- `data/results/manual_sample_100.csv`：100 条人工核对框，标签列待 P5 填；`topic_quality.csv` 标出 `（未细分）`。
+- `data/results/data_quality.json`：规模、覆盖、缺失、16 批次、已知问题；`scale.json` 同时保留图谱计数和 P1-8 统计。
 
-原 ETL 与导入工具在 scripts/legacy/，从仓库根目录以模块方式运行。旧 ETL 从 data/raw/ 读取三个同名 Excel，输出 data/legacy/。旧导入器 `python -m scripts.legacy.load_neo4j` 会删除所连数据库全部节点，仅可针对可重建的旧演示库手动运行，不用于新 Schema。旧重载脚本也会修改数据库。
+### Neo4j Desktop 注意
 
-tools/neo4j-community-5.26.0/、Java 17 与本机数据库不入仓库。start_neo4j.ps1 只适用于自行准备该目录的机器，也可自行安装 Neo4j。旧验证工具移至 eval/legacy/，历史结果在 docs/legacy/，不代表新版验收。
+本机用 Neo4j Desktop 管理本地实例，数据目录通过用户环境变量 `NEO4J_DESKTOP_DATA_PATH=D:\Neo4jData` 指到 D 盘。实例启动后，在 **Details** 里确认 Bolt 地址和端口，并保证与 `.env` 的 `NEO4J_URI` 一致。重跑导入时加 `--reset`，否则非空图会拒绝重复建边。外部引用 407,803 条不建占位节点，企业级分析用 `external_citation_applicants.parquet`。
 
-## 两个独立开关与结果重建
+## 旧数据
 
-- USE_SAMPLE=true：基础表读 data/_sample/，结果读 data/_sample/results/。
-- USE_SAMPLE=false：基础表读 data/processed/，结果读 data/results/，缺文件明确报错。
-- QA_BACKEND=mock：三个固定示例返回明确标注的假数据，页面显示演示提示。
-- QA_BACKEND=real：调用真实问答实现；当前仍待 P2 完成，返回失败，不会回退假数据。
-
-seed_sample 同时生成样例结果；仅重算当前模式结果执行 `python -m scripts.calculate_metrics`。新配置重启后生效。样例与全量结果必须有 scope 一致的 metrics_manifest.json，加载器拒绝混用。主题年度表当前因缺可靠源字段而为空，不能为了画图伪造年份 / 主题。
-
-预计算指标口径见 schema.md；界面职责与数字格式见 ui_spec.md；问答返回图和实体字段见 qa_intents.md。P1 提供数据与指标，P2 完成真实问答，P3 统一页面与简单聚合。
+`data/legacy/` 是旧 CSV 存档，不再参与样例生成；`data/_sample/` 已改为从 `data/processed/` 重建。旧六页演示、旧 ETL 与旧验证工具已移除。

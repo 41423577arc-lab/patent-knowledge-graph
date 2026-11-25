@@ -24,6 +24,5 @@ data/processed/*
 delivery/*.mp4
 delivery/*.mov
 
-# Full-data metric results are generated locally
-data/results/*.parquet
-data/results/metrics_manifest.json
+# 交付包保留给同伴的文件；原始汇总过大，不入库
+交付给同伴的内容/原始专利汇总.xlsx
