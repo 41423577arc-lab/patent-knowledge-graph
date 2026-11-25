@@ -1,9 +1,9 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """清洗企业名：去掉 incoPat 标准化申请人的方括号与国家码后缀，合并重复实体。"""
 import csv, re, shutil
 from pathlib import Path
 
-D = Path("kg_system/data")
+D = Path(__file__).resolve().parents[2] / "data" / "legacy"
 
 def clean(n):
     n = (n or "").strip().strip("[]").strip()

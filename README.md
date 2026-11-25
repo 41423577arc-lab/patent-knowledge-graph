@@ -1,92 +1,58 @@
-﻿# 新能源汽车专利知识图谱（KG-Patent）
+# 新能源汽车产业技术情报知识图谱平台
 
-《知识图谱技术与应用》小组系统开发 · 汽车产业方向（新能源汽车技术布局）
+按 [团队分工](docs/团队分工.md) 调整的五人协作开发基线。新版采用三个独立页面，旧六页演示保留在 `legacy/`，原 CSV 保留在 `data/legacy/`。
 
-## 1. 系统回答什么问题
+当前可运行：首页、三个页面入口、七表样例读取、问答返回结构。分析图表、12 意图问答、全量抽取和新 Schema 图谱导入由各负责人继续开发；骨架不代表这些功能已经完成。
 
-| # | 能力问题 | 跳数 | 对应页面 |
-|---|---|---|---|
-| Q1 | 某企业有多少件专利？授权率多少？ | 1 跳 | 企业技术画像 |
-| Q2 | 某企业的技术布局集中在哪些 IPC 小类 / 技术板块？ | 2 跳 | 企业技术画像 |
-| Q3 | 谁在引用某企业的专利？（技术跟随/竞争关系） | 2 跳 | 引用关系多跳分析 |
-| Q4 | 从企业 A 沿引用关系能到达哪些企业？技术扩散路径如何？ | 多跳 | 引用关系多跳分析 |
-| Q5 | 哪些专利是该领域核心专利（被引次数最高）？哪家企业技术影响力最大？ | 2 跳 | 核心专利识别 |
-| Q6 | 各技术板块专利数量随年份如何演化？ | 1 跳 | 技术演进趋势 |
+## 快速开始
 
-## 2. 图谱 Schema
-
-实体（4 类）
-
-| 实体 | 关键属性 | 说明 |
-|---|---|---|
-| Patent 专利 | id(公开号)、title、year、ipc_main、legal(授权/驳回)、is_granted、n_cited | 图中节点主体 |
-| Company 企业 | name（标准化申请人） | 申请人归一后的企业名 |
-| Inventor 发明人 | name | 第一/参与发明人 |
-| TechClass 技术小类 | code（IPC 前 4 位）、sector（电池/电机/电控/整车等） | 把 IPC 映射到「三电」板块 |
-
-关系（4 类）
-
-| 关系 | 起点 → 终点 | 语义 |
-|---|---|---|
-| APPLIED | Company → Patent | 申请 |
-| INVENTED | Inventor → Patent | 发明 |
-| CITES | Patent → Patent | 引用（方向：引用方 → 被引用方） |
-| IN_CLASS | Patent → TechClass | 属于技术小类 |
-
-## 3. 数据规模
-
-- 来源：incoPat 导出的专利著录项，共 3 个 xlsx（每个 203 列）
-- 专利节点 **25,125**（授权 10,000 / 驳回 15,125）
-- 企业 **9,502**、发明人 **40,636**、IPC 小类 **293**
-- 关系：申请 28,218、发明 78,806、分类 23,107、引用 **98,863**
-- 另有 72,307 个「被引用的外部专利」占位节点，用于跨数据集多跳
-
-## 4. 运行方法
-
-### 4.1 环境
-
-- Java 17（Neo4j 5.26 要求）
-- Python 3.10+，依赖：`neo4j`、`streamlit`、`plotly`、`pandas`、`openpyxl`、`lxml`
-
-### 4.2 步骤
+Python 3.10+，在仓库根目录运行：
 
 ```powershell
-# 1) 从原始 Excel 抽取图谱 CSV（约 3-5 分钟）
-python etl_patents.py
-
-# 2) 启动 Neo4j（本项目自带免安装版；首次需设置密码）
-powershell -File scripts/start_neo4j.ps1
-
-# 3) 导入图谱（另开终端）
-pip install neo4j
-python load_neo4j.py
-
-# 4) 启动演示界面
-powershell -File scripts/start_app.ps1
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+python -m eval.check_contracts
+python -m streamlit run app.py
 ```
 
-Neo4j 连接：`bolt://127.0.0.1:7687`，用户 `neo4j`，密码 `kgpatent2026`
-（可用环境变量 `KG_NEO4J_URI` / `KG_NEO4J_USER` / `KG_NEO4J_PASSWORD` 覆盖）
+默认 `USE_SAMPLE=true`，无需 Neo4j 或大模型 API。已提交七个 Parquet 样例；重建执行 `python -m scripts.seed_sample`。样例为旧 CSV 的前 150 条专利；缺失字段及空表见 [运行说明](docs/run.md)。
 
-浏览器打开 http://localhost:8501 即为演示系统。
+## 目录与负责人
 
-## 5. 目录结构
-
+```text
+app.py / requirements.txt          P1：应用壳与依赖
+core/                             P1：配置、只读查询、七表加载
+scripts/                          P1：抽取、建图、启动脚本
+data/raw/ processed/ _sample/      P1：原始、全量、开发样例
+data/results/                     P1：规模产物
+pages/01_产业技术全景.py           P2
+pages/02_创新主体与合作网络.py     P2
+analysis/                         P2：统计与网络分析
+pages/03_智能问答与关联路径.py     P3
+qa/                               P3：问答引擎
+docs/schema.md / run.md            P1
+docs/qa_intents.md                 P3
+docs/说明文档.md 答辩稿.md ppt/    P4
+eval/ README.md delivery/          P5：评估与交付
+legacy/ data/legacy/               旧演示与旧数据，只读保留
+docs/legacy/                      旧说明与验证结果，仅作历史参考
 ```
-kg_system/
-├── etl_patents.py        # Excel → 图谱 CSV（实体/关系抽取）
-├── load_neo4j.py         # CSV → Neo4j 批量导入
-├── app.py                # Streamlit 演示系统（6 个功能页）
-├── data/                 # 抽取结果 CSV
-├── scripts/              # 启动脚本
-├── tools/neo4j-...       # 免安装 Neo4j（含 Java 17 依赖）
-└── docs/                 # 说明文档、PPT、视频
+
+## 开发分支
+
+`main` 为稳定基线，`develop` 为联调分支。个人分支：`p1-data`、`p2-pages`、`p3-qa`、`p4-docs`、`p5-eval`，从同一公共基线创建。
+
+```powershell
+git fetch origin
+git switch --track origin/p2-pages
+# 完成自己负责的修改与验证后
+git add pages/01_产业技术全景.py analysis/
+git commit -m "feat: 完成产业技术全景"
+git push
 ```
 
-## 6. 数据质量与局限
+个人分支向 `develop` 提 PR，联调通过后 `develop` 向 `main` 提 PR。完整规则见 [协作指南](CONTRIBUTING.md)。
 
-1. **标签来自来源文件**：授权/驳回由 incoPat「当前法律状态」字段判定，未做人工复核；同一专利可能多次公开（申请/授权），仅按公开号去重。
-2. **企业名未完全归一**：原始「申请人」存在简称与全称混用，已做去方括号、去国家码与去重处理，但同一集团多主体（如子公司）仍未合并，需进一步做实体对齐。
-3. **引用边仅保留可解析部分**：每条专利最多取 12 条引证/被引证，未解析的专利号被丢弃。
-4. **IPC→技术板块的映射是人工规则**（293 个小类），非标准分类，存在归类误差。
-5. 数据为公开专利著录项，不含个人敏感信息，符合课程合规要求。
+旧六页演示：配置 `.env` 的 Neo4j 凭据后，执行 `powershell -File scripts/start_legacy.ps1`。旧版仍依赖原有数据库，新 Schema 尚未导入，详见 [docs/run.md](docs/run.md)。

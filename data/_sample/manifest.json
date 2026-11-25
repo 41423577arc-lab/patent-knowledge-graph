@@ -1,0 +1,21 @@
+{
+  "source": "data/legacy/*.csv",
+  "kind": "development_subset",
+  "patents": 150,
+  "selection": "first 150 rows of legacy patents.csv",
+  "missing_fields": [
+    "abstract",
+    "apply_date",
+    "apply_year",
+    "pub_date",
+    "patent_type",
+    "applicant_raw",
+    "applicant_type",
+    "is_first"
+  ],
+  "empty_tables": [
+    "patent_topic",
+    "patent_efficacy"
+  ],
+  "note": "Not a representative statistical sample. Full extraction is P1's task."
+}

@@ -1,0 +1,17 @@
+{
+  "status": "pending",
+  "scope": "contract-A graph not imported",
+  "patents": null,
+  "applicants": null,
+  "ipc": null,
+  "technologies": null,
+  "domains": null,
+  "relationships": {
+    "APPLIES_FOR": null,
+    "CITES": null,
+    "HAS_IPC": null,
+    "INVOLVES": null,
+    "BELONGS_TO": null,
+    "CO_APPLIED_WITH": null
+  }
+}

@@ -1,8 +1,9 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+from pathlib import Path
 from streamlit.testing.v1 import AppTest
 
 pages = ["图谱概览", "企业技术画像", "引用关系多跳分析", "核心专利识别", "技术演进趋势", "专利检索"]
-at = AppTest.from_file("app.py", default_timeout=120)
+at = AppTest.from_file(str(Path(__file__).resolve().parents[2] / "legacy" / "app.py"), default_timeout=120)
 at.run()
 print("page1 exception:", at.exception)
 for p in pages[1:]:

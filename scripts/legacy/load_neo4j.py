@@ -1,13 +1,11 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """把 kg_system/data 下的 CSV 导入 Neo4j（批量 UNWIND，无需 APOC）。"""
 import csv, os, sys
 from pathlib import Path
 from neo4j import GraphDatabase
 
-URI = os.environ.get("KG_NEO4J_URI", "bolt://127.0.0.1:7687")
-USER = os.environ.get("KG_NEO4J_USER", "neo4j")
-PWD = os.environ.get("KG_NEO4J_PASSWORD", "kgpatent2026")
-DATA = Path(__file__).resolve().parent / "data"
+from core.config import NEO4J_URI as URI, NEO4J_USER as USER, NEO4J_PASSWORD as PWD
+DATA = Path(__file__).resolve().parents[2] / "data" / "legacy"
 
 CONSTRAINTS = [
     "CREATE CONSTRAINT patent_id IF NOT EXISTS FOR (p:Patent) REQUIRE p.id IS UNIQUE",

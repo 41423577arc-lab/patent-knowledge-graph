@@ -1,11 +1,13 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """重载企业节点与 APPLIED 关系（清洗后）。"""
 import csv
 from pathlib import Path
 from neo4j import GraphDatabase
 
-D = Path(__file__).resolve().parent / "data"
-drv = GraphDatabase.driver("bolt://127.0.0.1:7687", auth=("neo4j", "kgpatent2026"))
+from core.config import NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD
+
+D = Path(__file__).resolve().parents[2] / "data" / "legacy"
+drv = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 def rows(name):
     with open(D / name, encoding="utf-8", newline="") as f:

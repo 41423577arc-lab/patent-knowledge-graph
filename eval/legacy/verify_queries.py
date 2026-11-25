@@ -1,12 +1,12 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """验证 6 个能力问题对应的 Cypher 查询，并把结果写入 docs/verify.txt。"""
 import os, time
 from pathlib import Path
 import pandas as pd
 from neo4j import GraphDatabase
 
-URI = os.environ.get("KG_NEO4J_URI", "bolt://127.0.0.1:7687")
-drv = GraphDatabase.driver(URI, auth=("neo4j", "kgpatent2026"))
+from core.config import NEO4J_URI as URI, NEO4J_USER as USER, NEO4J_PASSWORD as PWD
+drv = GraphDatabase.driver(URI, auth=(USER, PWD))
 out = []
 
 QUERIES = {
@@ -55,6 +55,6 @@ for label, cypher in QUERIES.items():
     out.append("\n=== %s (%.2fs) ===" % (label, dt))
     out.append(df.head(10).to_string(index=False))
 
-Path("kg_system/docs/verify.txt").write_text("\n".join(out), encoding="utf-8")
+(Path(__file__).resolve().parents[2] / "docs" / "legacy" / "verify.txt").write_text("\n".join(out), encoding="utf-8")
 drv.close()
 print("written")
