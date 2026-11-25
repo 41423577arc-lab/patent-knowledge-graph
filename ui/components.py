@@ -6,13 +6,14 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core import config
+from ui.assets import heading_html
 from ui.theme import PLOTLY_TEMPLATE
 
 
 def page_header(title: str, subtitle: str = "") -> None:
-    st.title(title)
-    if subtitle:
-        st.caption(subtitle)
+    number = title[:2] if title[:2].isdigit() else "EV"
+    name = title[3:] if title[:2].isdigit() else title
+    st.html(heading_html(name, subtitle, number))
     st.caption("数据范围：开发样例" if config.USE_SAMPLE else "数据范围：全量研究样本")
 
 
@@ -37,7 +38,7 @@ def metric_row(items: list[tuple[str, object]]) -> None:
 
 def chart(figure) -> None:
     figure.update_layout(template=PLOTLY_TEMPLATE)
-    st.plotly_chart(figure, width="stretch")
+    st.plotly_chart(figure, width="stretch", theme=None)
 
 
 def data_table(table) -> None:
