@@ -223,6 +223,12 @@ def _answer_panel(turn: dict, state: dict):
         st.warning("演示假数据 · 本条结果来自问答桩，不能视为实时或真实业务结论。")
     if answer["ok"]:
         st.markdown(answer["conclusion"] or "后端未提供文字结论，请查看实际返回记录。")
+        if answer["intent"] == "Q_INFLUENTIAL_APPLICANTS":
+            st.caption("口径：样本内引用网络指标，不代表全产业影响力；外部引用不属于图内 CITES。")
+        if answer["intent"] in {"Q_COMPANY_IPC", "Q_COMPANY_TOPICS_DOMAIN", "Q_TOPIC_APPLICANTS", "Q_TOPIC_TREND", "Q_GROWTH_TOPICS"}:
+            st.caption("技术类口径排除外观设计；规则抽取主题不等于标准分类，未细分主题应单列。")
+        if answer["intent"] == "Q_DEPENDENCY_EXPOSURE":
+            st.caption("P1 交接口径：在可映射外部主体子集内计算，需同时报告 C_A、时间窗口与覆盖。引用广度不是引用次数；C_A 不足 30 时不作单点依赖判断。页面不自行补算缺失字段。")
         cards = metric_cards(answer)
         if cards:
             for column, (label, value) in zip(st.columns(len(cards)), cards):

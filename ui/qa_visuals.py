@@ -69,13 +69,14 @@ def build_statistic(answer: dict, metric: str | None = None) -> tuple[go.Figure 
             return None, "未返回年度字段，不能从记录顺序推断时间趋势。"
         frame[year] = pd.to_numeric(frame[year], errors="coerce")
         frame = frame.dropna(subset=[year]).sort_values(year)
+        frame = frame.loc[frame[year].between(2010, 2023)]
         group = next((name for name in ["topic", "主题"] if name in frame), None)
         if frame.empty or frame.duplicated(([group] if group else []) + [year]).any():
             return None, "年度缺失或同一序列存在重复年份，请核对后端年度统计口径。"
         fig = px.line(frame, x=year, y=metric, color=group, markers=True)
         fig.update_xaxes(dtick=1)
         fig.update_yaxes(rangemode="tozero")
-        return fig, "坐标与数值直接取自本次返回记录，未补齐缺失年份。"
+        return fig, "按 P1 口径仅绘制 2010—2023；2024—2025 不完整。其余年份保留在原始返回表，不补齐缺失年份。"
     if intent == "Q_GROWTH_TOPICS":
         count = next((name for name in ["patent_count", "count", "申请量", "专利数"] if name in frame and pd.to_numeric(frame[name], errors="coerce").notna().any()), None)
         if count:
