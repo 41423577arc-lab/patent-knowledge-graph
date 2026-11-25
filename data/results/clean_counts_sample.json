@@ -1,0 +1,29 @@
+{
+  "source": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\results\\raw_sample_1000.parquet",
+  "sample_mode": true,
+  "raw_rows": 1008,
+  "non_primary_rows": 20,
+  "applications": 1005,
+  "patents": 1005,
+  "patents_by_type": {
+    "发明申请": 416,
+    "实用新型": 148,
+    "外观设计": 102,
+    "发明授权": 339
+  },
+  "design_patents": 102,
+  "missing_pid": 0,
+  "missing_appno": 0,
+  "duplicate_representative_pid": 0,
+  "groups_only_non_primary": 20,
+  "date_anomalies_nulled": 0,
+  "date_anomaly_samples": [],
+  "applicants_rows": 1095,
+  "unique_applicants": 671,
+  "patents_without_applicants": 0,
+  "multi_applicant_patents": 63,
+  "applicant_pair_length_mismatch": 3,
+  "applicant_type_foreign_unknown": 480,
+  "first_applicant_true": 1005,
+  "elapsed_sec": 0.6
+}

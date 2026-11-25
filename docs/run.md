@@ -17,28 +17,24 @@ Copy-Item 仅在无 .env 时执行，保留已有本地配置。默认样例模�
 
 ## 样例边界
 
-seed_sample 固定取旧 patents.csv 前 150 条，附带申请人、主 IPC、引用及共同申请关系。引用目标可在子集外，manifest.json 记录来源、选择与缺失项。
+`python -m scripts.seed_sample` 从 `data/processed/` 的七张全量表重建 `data/_sample/`：400 件按专利类型 / 主主题领域 / 申请年段分层抽样，再加 50 件基础集引用最多的专利和 31 件二跳引用专利，共 **481 件**。七表按同一 `patent_id` 过滤；`cooperation` 由样例内申请人重新配对生成。选择明细见 `data/results/sample_selection.csv`，统计见 `data/_sample/manifest.json`。
 
-旧导出不能可靠恢复摘要、申请日期 / 年份、公开日期、专利类型、原始申请人、主体类型和第一申请人标志，字段留空。主题 / 功效两表仅有列定义，暂零行。公开国别从公开号前缀提取。此开发子集不能用于全量趋势或对外指标。
+样例字段完整：摘要缺失 6 件、申请日缺失 3 件，主题 / 功效不再为空。非外观设计 IPC 覆盖 99.5%、主题 85.7%、功效 90.2%；样本内引用边 82 条。引用目标可在子集外，`cited_in_sample` 已按样例重新计算。
 
-## 全量与新图谱（待 P1）
+这是**开发样例**，不是统计抽样：引用闭包故意多选被引专利，专利类型比例也偏离全量。不能用于对外规模 / 趋势结论；全量数字看 `data/results/scale.json` 和 `docs/data_profile.md`。
 
-1. 原始导出放 data/raw/，不入 Git。
-2. 实现 scripts/clean_data.py，从真实源字段输出七表到 data/processed/。
-3. 实现 scripts/extract_entities.py 的主题 / 功效，完善日期与主体实体对齐。
-4. 实现 scripts/build_graph.py，按 docs/schema.md 建图并输出真实 scale.json。
-5. 配置凭据，USE_SAMPLE=false，重启验证。
+## 全量七表与 Neo4j
 
-这三个脚本目前明确退出提示待实现，不清库、不伪造成功。scale.json 在建图前 status=pending、规模为 null。全量目录为空会明确报错，不回退样例。这些是尚未完成的业务交付。
+1. 原始导出放 `data/raw/原始专利汇总.xlsx`，不入 Git。
+2. `python -m scripts.clean_data` 生成 `patents` / `applicants`。
+3. `python -m scripts.extract_entities` 生成 `patent_ipc` / `patent_topic` / `patent_efficacy`。
+4. `python -m scripts.build_relations` 生成 `citations` / `cooperation`。
+5. `python -m scripts.validate_tables` 做七表契约校验（`USE_SAMPLE=false`）。
+6. `python -m scripts.build_graph` 按 `docs/schema.md` 建图并写 `data/results/scale.json`（P1-7，待执行）。
+7. 配置凭据，`USE_SAMPLE=false`，重启验证。
 
-## 旧六页演示
+`data/processed/` 为空时 `load_table` 会明确报错，不回退样例。Neo4j 未建好前，`USE_SAMPLE=false` 只能读表，不能完成图查询。
 
-旧 Schema 为 Company / Inventor / TechClass / Patent.id，与新契约不同，现有数据库没有修改。填入 .env 的真实 Neo4j 密码后：
+## 旧数据
 
-```powershell
-powershell -File scripts/start_legacy.ps1
-```
-
-原 ETL 与导入工具在 scripts/legacy/，从仓库根目录以模块方式运行。旧 ETL 从 data/raw/ 读取三个同名 Excel，输出 data/legacy/。旧导入器 `python -m scripts.legacy.load_neo4j` 会删除所连数据库全部节点，仅可针对可重建的旧演示库手动运行，不用于新 Schema。旧重载脚本也会修改数据库。
-
-tools/neo4j-community-5.26.0/、Java 17 与本机数据库不入仓库。start_neo4j.ps1 只适用于自行准备该目录的机器，也可自行安装 Neo4j。旧验证工具移至 eval/legacy/，历史结果在 docs/legacy/，不代表新版验收。
+`data/legacy/` 是旧 CSV 存档，不再参与样例生成；`data/_sample/` 已改为从 `data/processed/` 重建。旧六页演示、旧 ETL 与旧验证工具已移除。

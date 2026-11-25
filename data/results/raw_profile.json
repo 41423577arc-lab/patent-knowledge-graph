@@ -1,0 +1,1845 @@
+{
+  "generated_at": "2026-11-25T14:54:02",
+  "raw_file": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\raw\\原始专利汇总.xlsx",
+  "rows": 142112,
+  "columns": 204,
+  "empty_rows": 0,
+  "max_cell_length": 31968,
+  "source_files": {
+    "2025-08-07-10.xlsx": 10000,
+    "2025-08-07-2.xlsx": 10000,
+    "2025-08-07-3.xlsx": 10000,
+    "2025-08-07-4.xlsx": 10000,
+    "2025-08-07-5.xlsx": 10000,
+    "2025-08-07-6.xlsx": 10000,
+    "2025-08-07-8.xlsx": 10000,
+    "2025-08-07-9.xlsx": 10000,
+    "2025-08-08-3.xlsx": 10000,
+    "2025-08-08-4.xlsx": 10000,
+    "2025-08-08-5.xlsx": 10000,
+    "2025-08-08-6.xlsx": 10000,
+    "2025-08-08.xlsx": 10000,
+    "2025-08-07.xlsx": 5125,
+    "2025-08-08-2.xlsx": 4155,
+    "2025-08-07-7.xlsx": 2832
+  },
+  "key_missing": {
+    "公开（公告）号": {
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0
+    },
+    "申请号": {
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0
+    },
+    "标题 (中文)": {
+      "nonempty": 142093,
+      "missing": 19,
+      "missing_rate": 0.0001
+    },
+    "摘要 (中文)": {
+      "nonempty": 140699,
+      "missing": 1413,
+      "missing_rate": 0.0099
+    },
+    "申请日": {
+      "nonempty": 142110,
+      "missing": 2,
+      "missing_rate": 0.0
+    },
+    "公开（公告）日": {
+      "nonempty": 142104,
+      "missing": 8,
+      "missing_rate": 0.0001
+    },
+    "申请人": {
+      "nonempty": 141710,
+      "missing": 402,
+      "missing_rate": 0.0028
+    },
+    "标准化申请人": {
+      "nonempty": 141311,
+      "missing": 801,
+      "missing_rate": 0.0056
+    },
+    "申请人类型": {
+      "nonempty": 84616,
+      "missing": 57496,
+      "missing_rate": 0.4046
+    },
+    "IPC主分类": {
+      "nonempty": 120994,
+      "missing": 21118,
+      "missing_rate": 0.1486
+    },
+    "IPC": {
+      "nonempty": 121133,
+      "missing": 20979,
+      "missing_rate": 0.1476
+    },
+    "技术功效短语": {
+      "nonempty": 109180,
+      "missing": 32932,
+      "missing_rate": 0.2317
+    },
+    "引证专利": {
+      "nonempty": 78979,
+      "missing": 63133,
+      "missing_rate": 0.4442
+    },
+    "被引证专利": {
+      "nonempty": 54337,
+      "missing": 87775,
+      "missing_rate": 0.6176
+    },
+    "被引证申请人": {
+      "nonempty": 54330,
+      "missing": 87782,
+      "missing_rate": 0.6177
+    },
+    "发明人": {
+      "nonempty": 140099,
+      "missing": 2013,
+      "missing_rate": 0.0142
+    },
+    "专利有效性": {
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0
+    },
+    "当前法律状态": {
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0
+    },
+    "合享价值度": {
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0
+    }
+  },
+  "column_stats": [
+    {
+      "column": "源文件",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 18
+    },
+    {
+      "column": "序号",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 5
+    },
+    {
+      "column": "标题 (中文)",
+      "nonempty": 142093,
+      "missing": 19,
+      "missing_rate": 0.0001,
+      "max_len": 146
+    },
+    {
+      "column": "标题 (英文)",
+      "nonempty": 142093,
+      "missing": 19,
+      "missing_rate": 0.0001,
+      "max_len": 475
+    },
+    {
+      "column": "摘要 (中文)",
+      "nonempty": 140699,
+      "missing": 1413,
+      "missing_rate": 0.0099,
+      "max_len": 10798
+    },
+    {
+      "column": "摘要 (英文)",
+      "nonempty": 140701,
+      "missing": 1411,
+      "missing_rate": 0.0099,
+      "max_len": 17134
+    },
+    {
+      "column": "申请人",
+      "nonempty": 141710,
+      "missing": 402,
+      "missing_rate": 0.0028,
+      "max_len": 323
+    },
+    {
+      "column": "公开（公告）号",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 20
+    },
+    {
+      "column": "公开（公告）日",
+      "nonempty": 142104,
+      "missing": 8,
+      "missing_rate": 0.0001,
+      "max_len": 10
+    },
+    {
+      "column": "申请号",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 20
+    },
+    {
+      "column": "申请日",
+      "nonempty": 142110,
+      "missing": 2,
+      "missing_rate": 0.0,
+      "max_len": 10
+    },
+    {
+      "column": "公开类型",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 8
+    },
+    {
+      "column": "专利类型",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 4
+    },
+    {
+      "column": "公开国别",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 17
+    },
+    {
+      "column": "链接到incoPat",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 31
+    },
+    {
+      "column": "标题（小语种原文）",
+      "nonempty": 40756,
+      "missing": 101356,
+      "missing_rate": 0.7132,
+      "max_len": 743
+    },
+    {
+      "column": "摘要（小语种原文）",
+      "nonempty": 29688,
+      "missing": 112424,
+      "missing_rate": 0.7911,
+      "max_len": 11607
+    },
+    {
+      "column": "首项权利要求",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 30020
+    },
+    {
+      "column": "首权翻译",
+      "nonempty": 120264,
+      "missing": 21848,
+      "missing_rate": 0.1537,
+      "max_len": 30577
+    },
+    {
+      "column": "独立权利要求",
+      "nonempty": 68769,
+      "missing": 73343,
+      "missing_rate": 0.5161,
+      "max_len": 31344
+    },
+    {
+      "column": "权利要求数量",
+      "nonempty": 118216,
+      "missing": 23896,
+      "missing_rate": 0.1681,
+      "max_len": 3
+    },
+    {
+      "column": "独立权利要求数量",
+      "nonempty": 68790,
+      "missing": 73322,
+      "missing_rate": 0.5159,
+      "max_len": 2
+    },
+    {
+      "column": "从属权利要求数量",
+      "nonempty": 66547,
+      "missing": 75565,
+      "missing_rate": 0.5317,
+      "max_len": 3
+    },
+    {
+      "column": "文献页数",
+      "nonempty": 84637,
+      "missing": 57475,
+      "missing_rate": 0.4044,
+      "max_len": 3
+    },
+    {
+      "column": "首权字数",
+      "nonempty": 116047,
+      "missing": 26065,
+      "missing_rate": 0.1834,
+      "max_len": 5
+    },
+    {
+      "column": "技术功效句",
+      "nonempty": 109180,
+      "missing": 32932,
+      "missing_rate": 0.2317,
+      "max_len": 602
+    },
+    {
+      "column": "技术功效短语",
+      "nonempty": 109180,
+      "missing": 32932,
+      "missing_rate": 0.2317,
+      "max_len": 377
+    },
+    {
+      "column": "技术功效1级",
+      "nonempty": 109180,
+      "missing": 32932,
+      "missing_rate": 0.2317,
+      "max_len": 141
+    },
+    {
+      "column": "技术功效2级",
+      "nonempty": 109180,
+      "missing": 32932,
+      "missing_rate": 0.2317,
+      "max_len": 224
+    },
+    {
+      "column": "技术功效3级",
+      "nonempty": 109180,
+      "missing": 32932,
+      "missing_rate": 0.2317,
+      "max_len": 442
+    },
+    {
+      "column": "技术功效TRIZ参数",
+      "nonempty": 95925,
+      "missing": 46187,
+      "missing_rate": 0.325,
+      "max_len": 45
+    },
+    {
+      "column": "用途",
+      "nonempty": 91205,
+      "missing": 50907,
+      "missing_rate": 0.3582,
+      "max_len": 2949
+    },
+    {
+      "column": "IPC主分类",
+      "nonempty": 120994,
+      "missing": 21118,
+      "missing_rate": 0.1486,
+      "max_len": 18
+    },
+    {
+      "column": "IPC",
+      "nonempty": 121133,
+      "missing": 20979,
+      "missing_rate": 0.1476,
+      "max_len": 722
+    },
+    {
+      "column": "洛迦诺分类号",
+      "nonempty": 19705,
+      "missing": 122407,
+      "missing_rate": 0.8613,
+      "max_len": 60
+    },
+    {
+      "column": "EC",
+      "nonempty": 3402,
+      "missing": 138710,
+      "missing_rate": 0.9761,
+      "max_len": 262
+    },
+    {
+      "column": "CPC",
+      "nonempty": 97439,
+      "missing": 44673,
+      "missing_rate": 0.3144,
+      "max_len": 1705
+    },
+    {
+      "column": "UC",
+      "nonempty": 3211,
+      "missing": 138901,
+      "missing_rate": 0.9774,
+      "max_len": 177
+    },
+    {
+      "column": "FI",
+      "nonempty": 10535,
+      "missing": 131577,
+      "missing_rate": 0.9259,
+      "max_len": 412
+    },
+    {
+      "column": "F-term",
+      "nonempty": 10039,
+      "missing": 132073,
+      "missing_rate": 0.9294,
+      "max_len": 2164
+    },
+    {
+      "column": "国民经济分类",
+      "nonempty": 140835,
+      "missing": 1277,
+      "missing_rate": 0.009,
+      "max_len": 425
+    },
+    {
+      "column": "国民经济行业(主)",
+      "nonempty": 120960,
+      "missing": 21152,
+      "missing_rate": 0.1488,
+      "max_len": 236
+    },
+    {
+      "column": "新兴产业分类",
+      "nonempty": 98831,
+      "missing": 43281,
+      "missing_rate": 0.3046,
+      "max_len": 191
+    },
+    {
+      "column": "新兴产业(主)",
+      "nonempty": 81875,
+      "missing": 60237,
+      "missing_rate": 0.4239,
+      "max_len": 8
+    },
+    {
+      "column": "知识密集型分类",
+      "nonempty": 110936,
+      "missing": 31176,
+      "missing_rate": 0.2194,
+      "max_len": 211
+    },
+    {
+      "column": "学科分类",
+      "nonempty": 114684,
+      "missing": 27428,
+      "missing_rate": 0.193,
+      "max_len": 106
+    },
+    {
+      "column": "清洁能源产业",
+      "nonempty": 81128,
+      "missing": 60984,
+      "missing_rate": 0.4291,
+      "max_len": 538
+    },
+    {
+      "column": "清洁生产产业",
+      "nonempty": 43770,
+      "missing": 98342,
+      "missing_rate": 0.692,
+      "max_len": 108
+    },
+    {
+      "column": "数字经济核心产业",
+      "nonempty": 65929,
+      "missing": 76183,
+      "missing_rate": 0.5361,
+      "max_len": 1071
+    },
+    {
+      "column": "申请人(翻译)",
+      "nonempty": 86236,
+      "missing": 55876,
+      "missing_rate": 0.3932,
+      "max_len": 697
+    },
+    {
+      "column": "申请人(其他)",
+      "nonempty": 29573,
+      "missing": 112539,
+      "missing_rate": 0.7919,
+      "max_len": 304
+    },
+    {
+      "column": "申请人终属母公司(中文)",
+      "nonempty": 141705,
+      "missing": 407,
+      "missing_rate": 0.0029,
+      "max_len": 313
+    },
+    {
+      "column": "申请人终属母公司(英文)",
+      "nonempty": 141705,
+      "missing": 407,
+      "missing_rate": 0.0029,
+      "max_len": 313
+    },
+    {
+      "column": "标准化申请人",
+      "nonempty": 141311,
+      "missing": 801,
+      "missing_rate": 0.0056,
+      "max_len": 322
+    },
+    {
+      "column": "标准化当前权利人",
+      "nonempty": 141258,
+      "missing": 854,
+      "missing_rate": 0.006,
+      "max_len": 323
+    },
+    {
+      "column": "当前权利人",
+      "nonempty": 141711,
+      "missing": 401,
+      "missing_rate": 0.0028,
+      "max_len": 323
+    },
+    {
+      "column": "第一申请人",
+      "nonempty": 141693,
+      "missing": 419,
+      "missing_rate": 0.0029,
+      "max_len": 307
+    },
+    {
+      "column": "申请人数量",
+      "nonempty": 141695,
+      "missing": 417,
+      "missing_rate": 0.0029,
+      "max_len": 2
+    },
+    {
+      "column": "申请人类型",
+      "nonempty": 84616,
+      "missing": 57496,
+      "missing_rate": 0.4046,
+      "max_len": 10
+    },
+    {
+      "column": "申请人国家/地区",
+      "nonempty": 142101,
+      "missing": 11,
+      "missing_rate": 0.0001,
+      "max_len": 21
+    },
+    {
+      "column": "申请人地址",
+      "nonempty": 139439,
+      "missing": 2673,
+      "missing_rate": 0.0188,
+      "max_len": 1602
+    },
+    {
+      "column": "申请人地址(其他)",
+      "nonempty": 27874,
+      "missing": 114238,
+      "missing_rate": 0.8039,
+      "max_len": 1602
+    },
+    {
+      "column": "申请人省市代码",
+      "nonempty": 84615,
+      "missing": 57497,
+      "missing_rate": 0.4046,
+      "max_len": 8
+    },
+    {
+      "column": "中国申请人地市",
+      "nonempty": 78444,
+      "missing": 63668,
+      "missing_rate": 0.448,
+      "max_len": 13
+    },
+    {
+      "column": "中国申请人区县",
+      "nonempty": 77892,
+      "missing": 64220,
+      "missing_rate": 0.4519,
+      "max_len": 17
+    },
+    {
+      "column": "当前专利权人地址",
+      "nonempty": 83197,
+      "missing": 58915,
+      "missing_rate": 0.4146,
+      "max_len": 276
+    },
+    {
+      "column": "工商别名",
+      "nonempty": 34394,
+      "missing": 107718,
+      "missing_rate": 0.758,
+      "max_len": 300
+    },
+    {
+      "column": "工商英文名",
+      "nonempty": 21697,
+      "missing": 120415,
+      "missing_rate": 0.8473,
+      "max_len": 253
+    },
+    {
+      "column": "工商注册地址",
+      "nonempty": 74096,
+      "missing": 68016,
+      "missing_rate": 0.4786,
+      "max_len": 272
+    },
+    {
+      "column": "工商公司类型",
+      "nonempty": 72987,
+      "missing": 69125,
+      "missing_rate": 0.4864,
+      "max_len": 220
+    },
+    {
+      "column": "工商成立日期",
+      "nonempty": 72078,
+      "missing": 70034,
+      "missing_rate": 0.4928,
+      "max_len": 178
+    },
+    {
+      "column": "工商统一社会信用代码",
+      "nonempty": 73394,
+      "missing": 68718,
+      "missing_rate": 0.4835,
+      "max_len": 298
+    },
+    {
+      "column": "工商注册号",
+      "nonempty": 64484,
+      "missing": 77628,
+      "missing_rate": 0.5462,
+      "max_len": 219
+    },
+    {
+      "column": "工商上市代码",
+      "nonempty": 7614,
+      "missing": 134498,
+      "missing_rate": 0.9464,
+      "max_len": 36
+    },
+    {
+      "column": "工商企业状态",
+      "nonempty": 74304,
+      "missing": 67808,
+      "missing_rate": 0.4771,
+      "max_len": 180
+    },
+    {
+      "column": "发明人",
+      "nonempty": 140099,
+      "missing": 2013,
+      "missing_rate": 0.0142,
+      "max_len": 1378
+    },
+    {
+      "column": "发明(设计)人(其他)",
+      "nonempty": 29257,
+      "missing": 112855,
+      "missing_rate": 0.7941,
+      "max_len": 475
+    },
+    {
+      "column": "第一发明(设计)人",
+      "nonempty": 140075,
+      "missing": 2037,
+      "missing_rate": 0.0143,
+      "max_len": 1282
+    },
+    {
+      "column": "当前发明人名称",
+      "nonempty": 728,
+      "missing": 141384,
+      "missing_rate": 0.9949,
+      "max_len": 112
+    },
+    {
+      "column": "发明(设计)人数量",
+      "nonempty": 140087,
+      "missing": 2025,
+      "missing_rate": 0.0142,
+      "max_len": 2
+    },
+    {
+      "column": "发明人国家/地区",
+      "nonempty": 34601,
+      "missing": 107511,
+      "missing_rate": 0.7565,
+      "max_len": 28
+    },
+    {
+      "column": "发明人地址（原始）",
+      "nonempty": 50132,
+      "missing": 91980,
+      "missing_rate": 0.6472,
+      "max_len": 1307
+    },
+    {
+      "column": "发明(设计)人地址（其他）",
+      "nonempty": 26222,
+      "missing": 115890,
+      "missing_rate": 0.8155,
+      "max_len": 1307
+    },
+    {
+      "column": "代理机构",
+      "nonempty": 120159,
+      "missing": 21953,
+      "missing_rate": 0.1545,
+      "max_len": 1156
+    },
+    {
+      "column": "代理人",
+      "nonempty": 119640,
+      "missing": 22472,
+      "missing_rate": 0.1581,
+      "max_len": 1156
+    },
+    {
+      "column": "审查员",
+      "nonempty": 36561,
+      "missing": 105551,
+      "missing_rate": 0.7427,
+      "max_len": 48
+    },
+    {
+      "column": "转让人地址",
+      "nonempty": 10009,
+      "missing": 132103,
+      "missing_rate": 0.9296,
+      "max_len": 208
+    },
+    {
+      "column": "受让人地址",
+      "nonempty": 22023,
+      "missing": 120089,
+      "missing_rate": 0.845,
+      "max_len": 850
+    },
+    {
+      "column": "EP指定生效国",
+      "nonempty": 3957,
+      "missing": 138155,
+      "missing_rate": 0.9722,
+      "max_len": 187
+    },
+    {
+      "column": "引证专利",
+      "nonempty": 78979,
+      "missing": 63133,
+      "missing_rate": 0.4442,
+      "max_len": 17849
+    },
+    {
+      "column": "被引证专利",
+      "nonempty": 54337,
+      "missing": 87775,
+      "missing_rate": 0.6176,
+      "max_len": 16901
+    },
+    {
+      "column": "自引信息",
+      "nonempty": 26144,
+      "missing": 115968,
+      "missing_rate": 0.816,
+      "max_len": 3470
+    },
+    {
+      "column": "他引信息",
+      "nonempty": 76658,
+      "missing": 65454,
+      "missing_rate": 0.4606,
+      "max_len": 17707
+    },
+    {
+      "column": "被自引信息",
+      "nonempty": 15788,
+      "missing": 126324,
+      "missing_rate": 0.8889,
+      "max_len": 2336
+    },
+    {
+      "column": "被他引信息",
+      "nonempty": 50097,
+      "missing": 92015,
+      "missing_rate": 0.6475,
+      "max_len": 16901
+    },
+    {
+      "column": "家族引证",
+      "nonempty": 95761,
+      "missing": 46351,
+      "missing_rate": 0.3262,
+      "max_len": 17849
+    },
+    {
+      "column": "家族被引证",
+      "nonempty": 85816,
+      "missing": 56296,
+      "missing_rate": 0.3961,
+      "max_len": 20879
+    },
+    {
+      "column": "引证申请人",
+      "nonempty": 78798,
+      "missing": 63314,
+      "missing_rate": 0.4455,
+      "max_len": 30598
+    },
+    {
+      "column": "被引证申请人",
+      "nonempty": 54330,
+      "missing": 87782,
+      "missing_rate": 0.6177,
+      "max_len": 10059
+    },
+    {
+      "column": "家族引证申请人",
+      "nonempty": 95683,
+      "missing": 46429,
+      "missing_rate": 0.3267,
+      "max_len": 30598
+    },
+    {
+      "column": "家族被引证申请人",
+      "nonempty": 85814,
+      "missing": 56298,
+      "missing_rate": 0.3962,
+      "max_len": 10798
+    },
+    {
+      "column": "引证次数",
+      "nonempty": 78979,
+      "missing": 63133,
+      "missing_rate": 0.4442,
+      "max_len": 4
+    },
+    {
+      "column": "被引证次数",
+      "nonempty": 54337,
+      "missing": 87775,
+      "missing_rate": 0.6176,
+      "max_len": 4
+    },
+    {
+      "column": "自引次数",
+      "nonempty": 26144,
+      "missing": 115968,
+      "missing_rate": 0.816,
+      "max_len": 3
+    },
+    {
+      "column": "他引次数",
+      "nonempty": 76658,
+      "missing": 65454,
+      "missing_rate": 0.4606,
+      "max_len": 4
+    },
+    {
+      "column": "被自引次数",
+      "nonempty": 15788,
+      "missing": 126324,
+      "missing_rate": 0.8889,
+      "max_len": 3
+    },
+    {
+      "column": "被他引次数",
+      "nonempty": 50097,
+      "missing": 92015,
+      "missing_rate": 0.6475,
+      "max_len": 4
+    },
+    {
+      "column": "家族引证次数",
+      "nonempty": 95761,
+      "missing": 46351,
+      "missing_rate": 0.3262,
+      "max_len": 4
+    },
+    {
+      "column": "家族被引证次数",
+      "nonempty": 85816,
+      "missing": 56296,
+      "missing_rate": 0.3961,
+      "max_len": 4
+    },
+    {
+      "column": "引证科技文献",
+      "nonempty": 14701,
+      "missing": 127411,
+      "missing_rate": 0.8966,
+      "max_len": 31968
+    },
+    {
+      "column": "引证类别",
+      "nonempty": 28990,
+      "missing": 113122,
+      "missing_rate": 0.796,
+      "max_len": 435
+    },
+    {
+      "column": "被引证类别",
+      "nonempty": 41020,
+      "missing": 101092,
+      "missing_rate": 0.7114,
+      "max_len": 301
+    },
+    {
+      "column": "引证来源",
+      "nonempty": 10157,
+      "missing": 131955,
+      "missing_rate": 0.9285,
+      "max_len": 65
+    },
+    {
+      "column": "被引证来源",
+      "nonempty": 8137,
+      "missing": 133975,
+      "missing_rate": 0.9427,
+      "max_len": 183
+    },
+    {
+      "column": "被引证国别(forward)",
+      "nonempty": 54337,
+      "missing": 87775,
+      "missing_rate": 0.6176,
+      "max_len": 72
+    },
+    {
+      "column": "简单同族",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 3158
+    },
+    {
+      "column": "扩展同族",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 24268
+    },
+    {
+      "column": "DocDB同族",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 3178
+    },
+    {
+      "column": "简单同族ID",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 24
+    },
+    {
+      "column": "扩展同族ID",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 26
+    },
+    {
+      "column": "DocDB同族ID",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 24
+    },
+    {
+      "column": "简单同族个数",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 3
+    },
+    {
+      "column": "扩展同族个数",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 4
+    },
+    {
+      "column": "DocDB同族个数",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 3
+    },
+    {
+      "column": "同族国家/地区",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 110
+    },
+    {
+      "column": "优先权信息",
+      "nonempty": 32094,
+      "missing": 110018,
+      "missing_rate": 0.7742,
+      "max_len": 733
+    },
+    {
+      "column": "优先权号",
+      "nonempty": 32090,
+      "missing": 110022,
+      "missing_rate": 0.7742,
+      "max_len": 418
+    },
+    {
+      "column": "优先权日",
+      "nonempty": 32081,
+      "missing": 110031,
+      "missing_rate": 0.7743,
+      "max_len": 10
+    },
+    {
+      "column": "最早优先权日",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 10
+    },
+    {
+      "column": "优先权国别",
+      "nonempty": 32069,
+      "missing": 110043,
+      "missing_rate": 0.7743,
+      "max_len": 24
+    },
+    {
+      "column": "PCT国际申请号",
+      "nonempty": 14832,
+      "missing": 127280,
+      "missing_rate": 0.8956,
+      "max_len": 28
+    },
+    {
+      "column": "PCT国际公布号",
+      "nonempty": 14709,
+      "missing": 127403,
+      "missing_rate": 0.8965,
+      "max_len": 25
+    },
+    {
+      "column": "PCT进入国家阶段日",
+      "nonempty": 2511,
+      "missing": 139601,
+      "missing_rate": 0.9823,
+      "max_len": 10
+    },
+    {
+      "column": "母案",
+      "nonempty": 1375,
+      "missing": 140737,
+      "missing_rate": 0.9903,
+      "max_len": 34
+    },
+    {
+      "column": "分案",
+      "nonempty": 1034,
+      "missing": 141078,
+      "missing_rate": 0.9927,
+      "max_len": 646
+    },
+    {
+      "column": "一案双申",
+      "nonempty": 7799,
+      "missing": 134313,
+      "missing_rate": 0.9451,
+      "max_len": 34
+    },
+    {
+      "column": "专利有效性",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 2
+    },
+    {
+      "column": "当前法律状态",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 2
+    },
+    {
+      "column": "法律状态",
+      "nonempty": 137084,
+      "missing": 5028,
+      "missing_rate": 0.0354,
+      "max_len": 31213
+    },
+    {
+      "column": "法律文书日期",
+      "nonempty": 68,
+      "missing": 142044,
+      "missing_rate": 0.9995,
+      "max_len": 132
+    },
+    {
+      "column": "法律文书编号",
+      "nonempty": 68,
+      "missing": 142044,
+      "missing_rate": 0.9995,
+      "max_len": 103
+    },
+    {
+      "column": "复审请求人",
+      "nonempty": 491,
+      "missing": 141621,
+      "missing_rate": 0.9965,
+      "max_len": 60
+    },
+    {
+      "column": "无效请求人",
+      "nonempty": 51,
+      "missing": 142061,
+      "missing_rate": 0.9996,
+      "max_len": 40
+    },
+    {
+      "column": "复审无效决定",
+      "nonempty": 525,
+      "missing": 141587,
+      "missing_rate": 0.9963,
+      "max_len": 20
+    },
+    {
+      "column": "复审无效决定日",
+      "nonempty": 549,
+      "missing": 141563,
+      "missing_rate": 0.9961,
+      "max_len": 66
+    },
+    {
+      "column": "复审无效法律依据",
+      "nonempty": 537,
+      "missing": 141575,
+      "missing_rate": 0.9962,
+      "max_len": 153
+    },
+    {
+      "column": "转让次数",
+      "nonempty": 24579,
+      "missing": 117533,
+      "missing_rate": 0.827,
+      "max_len": 2
+    },
+    {
+      "column": "转让执行日",
+      "nonempty": 24579,
+      "missing": 117533,
+      "missing_rate": 0.827,
+      "max_len": 274
+    },
+    {
+      "column": "转让人",
+      "nonempty": 23260,
+      "missing": 118852,
+      "missing_rate": 0.8363,
+      "max_len": 1925
+    },
+    {
+      "column": "转让人类型",
+      "nonempty": 10792,
+      "missing": 131320,
+      "missing_rate": 0.9241,
+      "max_len": 10
+    },
+    {
+      "column": "受让人",
+      "nonempty": 24654,
+      "missing": 117458,
+      "missing_rate": 0.8265,
+      "max_len": 1485
+    },
+    {
+      "column": "受让人类型",
+      "nonempty": 10792,
+      "missing": 131320,
+      "missing_rate": 0.9241,
+      "max_len": 10
+    },
+    {
+      "column": "标准受让人",
+      "nonempty": 24654,
+      "missing": 117458,
+      "missing_rate": 0.8265,
+      "max_len": 1327
+    },
+    {
+      "column": "许可次数",
+      "nonempty": 848,
+      "missing": 141264,
+      "missing_rate": 0.994,
+      "max_len": 2
+    },
+    {
+      "column": "许可合同备案日期",
+      "nonempty": 848,
+      "missing": 141264,
+      "missing_rate": 0.994,
+      "max_len": 191
+    },
+    {
+      "column": "许可人",
+      "nonempty": 848,
+      "missing": 141264,
+      "missing_rate": 0.994,
+      "max_len": 26
+    },
+    {
+      "column": "许可人类型",
+      "nonempty": 848,
+      "missing": 141264,
+      "missing_rate": 0.994,
+      "max_len": 4
+    },
+    {
+      "column": "被许可人",
+      "nonempty": 848,
+      "missing": 141264,
+      "missing_rate": 0.994,
+      "max_len": 519
+    },
+    {
+      "column": "被许可人类型",
+      "nonempty": 842,
+      "missing": 141270,
+      "missing_rate": 0.9941,
+      "max_len": 7
+    },
+    {
+      "column": "当前被许可人",
+      "nonempty": 810,
+      "missing": 141302,
+      "missing_rate": 0.9943,
+      "max_len": 519
+    },
+    {
+      "column": "许可类型",
+      "nonempty": 848,
+      "missing": 141264,
+      "missing_rate": 0.994,
+      "max_len": 10
+    },
+    {
+      "column": "质押/保全次数",
+      "nonempty": 2378,
+      "missing": 139734,
+      "missing_rate": 0.9833,
+      "max_len": 1
+    },
+    {
+      "column": "出质人",
+      "nonempty": 1690,
+      "missing": 140422,
+      "missing_rate": 0.9881,
+      "max_len": 46
+    },
+    {
+      "column": "质权人",
+      "nonempty": 1690,
+      "missing": 140422,
+      "missing_rate": 0.9881,
+      "max_len": 47
+    },
+    {
+      "column": "当前质权人",
+      "nonempty": 1379,
+      "missing": 140733,
+      "missing_rate": 0.9903,
+      "max_len": 25
+    },
+    {
+      "column": "诉讼次数",
+      "nonempty": 68,
+      "missing": 142044,
+      "missing_rate": 0.9995,
+      "max_len": 1
+    },
+    {
+      "column": "原告",
+      "nonempty": 135,
+      "missing": 141977,
+      "missing_rate": 0.9991,
+      "max_len": 196
+    },
+    {
+      "column": "被告",
+      "nonempty": 1101,
+      "missing": 141011,
+      "missing_rate": 0.9923,
+      "max_len": 837
+    },
+    {
+      "column": "诉讼类型",
+      "nonempty": 2383,
+      "missing": 139729,
+      "missing_rate": 0.9832,
+      "max_len": 26
+    },
+    {
+      "column": "法庭",
+      "nonempty": 2383,
+      "missing": 139729,
+      "missing_rate": 0.9832,
+      "max_len": 136
+    },
+    {
+      "column": "海关备案",
+      "nonempty": 88,
+      "missing": 142024,
+      "missing_rate": 0.9994,
+      "max_len": 1
+    },
+    {
+      "column": "复审决定日",
+      "nonempty": 493,
+      "missing": 141619,
+      "missing_rate": 0.9965,
+      "max_len": 22
+    },
+    {
+      "column": "无效决定日",
+      "nonempty": 42,
+      "missing": 142070,
+      "missing_rate": 0.9997,
+      "max_len": 34
+    },
+    {
+      "column": "口审日期",
+      "nonempty": 42,
+      "missing": 142070,
+      "missing_rate": 0.9997,
+      "max_len": 34
+    },
+    {
+      "column": "法律事件",
+      "nonempty": 41157,
+      "missing": 100955,
+      "missing_rate": 0.7104,
+      "max_len": 22
+    },
+    {
+      "column": "复审请求日",
+      "nonempty": 486,
+      "missing": 141626,
+      "missing_rate": 0.9966,
+      "max_len": 22
+    },
+    {
+      "column": "许可合同备案号",
+      "nonempty": 848,
+      "missing": 141264,
+      "missing_rate": 0.994,
+      "max_len": 622
+    },
+    {
+      "column": "质押号",
+      "nonempty": 1690,
+      "missing": 140422,
+      "missing_rate": 0.9881,
+      "max_len": 110
+    },
+    {
+      "column": "转让登记号",
+      "nonempty": 12161,
+      "missing": 129951,
+      "missing_rate": 0.9144,
+      "max_len": 362
+    },
+    {
+      "column": "转让登记日",
+      "nonempty": 12161,
+      "missing": 129951,
+      "missing_rate": 0.9144,
+      "max_len": 286
+    },
+    {
+      "column": "当前权利人类型",
+      "nonempty": 84481,
+      "missing": 57631,
+      "missing_rate": 0.4055,
+      "max_len": 10
+    },
+    {
+      "column": "首次公开号",
+      "nonempty": 142062,
+      "missing": 50,
+      "missing_rate": 0.0004,
+      "max_len": 19
+    },
+    {
+      "column": "首次公开日",
+      "nonempty": 142062,
+      "missing": 50,
+      "missing_rate": 0.0004,
+      "max_len": 10
+    },
+    {
+      "column": "授权公告号",
+      "nonempty": 124553,
+      "missing": 17559,
+      "missing_rate": 0.1236,
+      "max_len": 19
+    },
+    {
+      "column": "授权公告日",
+      "nonempty": 126582,
+      "missing": 15530,
+      "missing_rate": 0.1093,
+      "max_len": 10
+    },
+    {
+      "column": "实质审查生效日",
+      "nonempty": 43982,
+      "missing": 98130,
+      "missing_rate": 0.6905,
+      "max_len": 10
+    },
+    {
+      "column": "进入实质审查时长",
+      "nonempty": 43982,
+      "missing": 98130,
+      "missing_rate": 0.6905,
+      "max_len": 3
+    },
+    {
+      "column": "审查时长",
+      "nonempty": 34839,
+      "missing": 107273,
+      "missing_rate": 0.7548,
+      "max_len": 2
+    },
+    {
+      "column": "失效日",
+      "nonempty": 11191,
+      "missing": 130921,
+      "missing_rate": 0.9213,
+      "max_len": 10
+    },
+    {
+      "column": "专利寿命（月）",
+      "nonempty": 0,
+      "missing": 142112,
+      "missing_rate": 1.0,
+      "max_len": 0
+    },
+    {
+      "column": "标准类型",
+      "nonempty": 6,
+      "missing": 142106,
+      "missing_rate": 1.0,
+      "max_len": 4
+    },
+    {
+      "column": "标准项目",
+      "nonempty": 6,
+      "missing": 142106,
+      "missing_rate": 1.0,
+      "max_len": 13
+    },
+    {
+      "column": "标准号",
+      "nonempty": 6,
+      "missing": 142106,
+      "missing_rate": 1.0,
+      "max_len": 58
+    },
+    {
+      "column": "公司(标准)",
+      "nonempty": 6,
+      "missing": 142106,
+      "missing_rate": 1.0,
+      "max_len": 64
+    },
+    {
+      "column": "合享价值度",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 2
+    },
+    {
+      "column": "技术稳定性",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 2
+    },
+    {
+      "column": "技术先进性",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 2
+    },
+    {
+      "column": "保护范围",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 2
+    },
+    {
+      "column": "文献种类代码",
+      "nonempty": 142112,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "max_len": 2
+    },
+    {
+      "column": "预估到期日",
+      "nonempty": 142050,
+      "missing": 62,
+      "missing_rate": 0.0004,
+      "max_len": 10
+    },
+    {
+      "column": "奖励名称",
+      "nonempty": 86,
+      "missing": 142026,
+      "missing_rate": 0.9994,
+      "max_len": 20
+    },
+    {
+      "column": "奖励届次",
+      "nonempty": 86,
+      "missing": 142026,
+      "missing_rate": 0.9994,
+      "max_len": 32
+    },
+    {
+      "column": "奖励等级",
+      "nonempty": 86,
+      "missing": 142026,
+      "missing_rate": 0.9994,
+      "max_len": 25
+    },
+    {
+      "column": "摘要附图(压缩图)",
+      "nonempty": 0,
+      "missing": 142112,
+      "missing_rate": 1.0,
+      "max_len": 0
+    }
+  ],
+  "distributions": {
+    "专利类型": {
+      "发明申请": 54878,
+      "发明授权": 42969,
+      "实用新型": 24563,
+      "外观设计": 19702
+    },
+    "公开类型": {
+      "发明申请": 53345,
+      "发明授权": 40842,
+      "实用新型": 24559,
+      "外观设计": 19698,
+      "译文": 2142,
+      "检索报告": 1067,
+      "修正或者更正专利": 453,
+      "短期专利": 5,
+      "其他": 1
+    },
+    "公开国别": {
+      "中国": 84616,
+      "韩国": 16095,
+      "美国": 13006,
+      "日本": 10890,
+      "欧洲专利局": 5188,
+      "德国": 4061,
+      "中国台湾": 1549,
+      "印度": 1493,
+      "英国": 1053,
+      "法国": 893,
+      "印度尼西亚": 403,
+      "加拿大": 326,
+      "西班牙": 288,
+      "意大利": 249,
+      "澳大利亚": 248,
+      "巴西": 244,
+      "越南": 173,
+      "俄罗斯": 149,
+      "墨西哥": 123,
+      "欧盟": 104
+    },
+    "申请人类型": {
+      "企业": 69736,
+      "": 57496,
+      "学校": 6632,
+      "个人": 6333,
+      "企业,学校": 813,
+      "科研单位": 566,
+      "企业,科研单位": 217,
+      "机关团体": 62,
+      "个人,企业": 55,
+      "科研单位,学校": 49,
+      "企业,个人": 40,
+      "企业,机关团体": 29,
+      "其他": 24,
+      "企业,科研单位,学校": 19,
+      "学校,企业": 12,
+      "个人,学校": 10,
+      "科研单位,企业": 5,
+      "个人,机关团体": 3,
+      "其他,学校": 2,
+      "企业,个人,学校": 2
+    },
+    "专利有效性": {
+      "有效": 126990,
+      "失效": 15122
+    },
+    "当前法律状态": {
+      "授权": 126987,
+      "驳回": 15125
+    },
+    "合享价值度": {
+      "9": 37967,
+      "10": 37548,
+      "5": 20048,
+      "7": 16512,
+      "8": 13771,
+      "6": 6471,
+      "4": 6410,
+      "2": 1994,
+      "3": 1177,
+      "1": 214
+    },
+    "技术稳定性": {
+      "1": 32694,
+      "8": 22104,
+      "3": 19972,
+      "6": 17282,
+      "7": 16995,
+      "9": 16852,
+      "2": 11619,
+      "10": 4594
+    },
+    "技术先进性": {
+      "10": 39176,
+      "1": 26731,
+      "9": 26548,
+      "8": 11900,
+      "7": 8602,
+      "3": 7879,
+      "4": 7222,
+      "2": 6842,
+      "5": 5922,
+      "6": 1290
+    },
+    "保护范围": {
+      "7": 35502,
+      "6": 27748,
+      "4": 24638,
+      "5": 14356,
+      "2": 13761,
+      "1": 8909,
+      "10": 6614,
+      "8": 4638,
+      "3": 3230,
+      "9": 2716
+    }
+  },
+  "duplicates": {
+    "unique_pid": 142066,
+    "duplicate_pid_rows": 46,
+    "unique_appno": 106393,
+    "duplicate_appno_rows": 35719,
+    "appno_with_multiple_rows": 34006
+  },
+  "citations": {
+    "unique_cited_ids": 272520,
+    "in_sample_exact": 34323,
+    "in_sample_exact_rate": 0.1259,
+    "in_sample_without_kind": 36994,
+    "in_sample_without_kind_rate": 0.1357,
+    "unique_cited_bases": 230690,
+    "rows_with_cite": 78979,
+    "rows_with_cited": 54337,
+    "rows_missing_cite": 63133,
+    "rows_missing_cited": 87775
+  },
+  "years": {
+    "apply_year": {
+      "1962": 2,
+      "1969": 1,
+      "1971": 1,
+      "1974": 2,
+      "1976": 3,
+      "1977": 5,
+      "1979": 2,
+      "1980": 1,
+      "1981": 1,
+      "1982": 1,
+      "1983": 2,
+      "1984": 3,
+      "1985": 3,
+      "1986": 5,
+      "1987": 5,
+      "1988": 4,
+      "1989": 1,
+      "1990": 3,
+      "1991": 17,
+      "1992": 24,
+      "1993": 59,
+      "1994": 106,
+      "1995": 191,
+      "1996": 197,
+      "1997": 166,
+      "1998": 106,
+      "1999": 97,
+      "2000": 76,
+      "2001": 112,
+      "2002": 125,
+      "2003": 119,
+      "2004": 103,
+      "2005": 235,
+      "2006": 686,
+      "2007": 840,
+      "2008": 1098,
+      "2009": 1646,
+      "2010": 2613,
+      "2011": 4158,
+      "2012": 4975,
+      "2013": 4439,
+      "2014": 4911,
+      "2015": 5862,
+      "2016": 8244,
+      "2017": 9625,
+      "2018": 12184,
+      "2019": 14335,
+      "2020": 16020,
+      "2021": 15007,
+      "2022": 13833,
+      "2023": 12102,
+      "2024": 7397,
+      "2025": 357
+    },
+    "pub_year": {
+      "1969": 1,
+      "1972": 2,
+      "1974": 2,
+      "1976": 2,
+      "1977": 1,
+      "1978": 5,
+      "1979": 1,
+      "1980": 1,
+      "1981": 2,
+      "1983": 2,
+      "1984": 1,
+      "1985": 5,
+      "1986": 2,
+      "1987": 2,
+      "1988": 7,
+      "1989": 4,
+      "1990": 1,
+      "1991": 3,
+      "1992": 6,
+      "1993": 16,
+      "1994": 37,
+      "1995": 95,
+      "1996": 87,
+      "1997": 202,
+      "1998": 218,
+      "1999": 146,
+      "2000": 101,
+      "2001": 76,
+      "2002": 102,
+      "2003": 108,
+      "2004": 126,
+      "2005": 119,
+      "2006": 125,
+      "2007": 297,
+      "2008": 514,
+      "2009": 695,
+      "2010": 1034,
+      "2011": 1540,
+      "2012": 2585,
+      "2013": 3586,
+      "2014": 3813,
+      "2015": 4798,
+      "2016": 6681,
+      "2017": 7917,
+      "2018": 9260,
+      "2019": 11520,
+      "2020": 14411,
+      "2021": 17124,
+      "2022": 15575,
+      "2023": 15989,
+      "2024": 15804,
+      "2025": 7353
+    }
+  },
+  "lengths": {
+    "title": {
+      "n": 142093,
+      "min": 1,
+      "p50": 14,
+      "p90": 24,
+      "max": 146
+    },
+    "abstract": {
+      "n": 140699,
+      "min": 2,
+      "p50": 246,
+      "p90": 304,
+      "max": 10798
+    }
+  },
+  "multi_value_rows": {
+    "IPC_semicolon": 98229,
+    "技术功效短语_semicolon": 93220,
+    "引证专利_semicolon": 69735,
+    "被引证专利_semicolon": 41462,
+    "申请人_semicolon": 15223,
+    "标准化申请人_semicolon": 15211
+  },
+  "date_anomalies": {
+    "count": 2,
+    "samples": [
+      [
+        "NZ432550S",
+        "2023-09-01",
+        "2023-06-25"
+      ],
+      [
+        "PH12018000436B1",
+        "2018-12-12",
+        "2004-11-08"
+      ]
+    ]
+  },
+  "sample": {
+    "rows": 1008,
+    "path": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\results\\raw_sample_1000.parquet",
+    "method": "每个源文件前 63 行，合计约 1,008 行"
+  },
+  "elapsed_sec": 304.5
+}

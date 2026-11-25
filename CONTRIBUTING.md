@@ -15,7 +15,7 @@
 1. 每人只在自己的分支改自己的文件，PR 目标选 `develop`。开工前 `git fetch origin`，将 `origin/develop` 合并到个人分支，不强推共享分支。
 2. 跨目录修改向负责人提需求，由负责人完成。公共依赖统一由 P1 更新 requirements.txt。
 3. 契约变更同步团队分工与对应 docs，再通知使用者；不能私改字段。
-4. `.github/`、`.gitignore`、本指南、分工与规划为协作配置，变更在 PR 中说明并经团队确认。旧版代码只读保留，兼容性修复由 P1 单独处理。
+4. `.github/`、`.gitignore`、本指南、分工与规划为协作配置，变更在 PR 中说明并经团队确认。
 5. 不提交凭据、虚拟环境、全量原始数据、视频与压缩包。`data/processed/` 本地生成，七表样例入库。
 6. P2 / P3 / P5 用 `load_table()` 取数；P2 / P3 用 `run_query()` 调用审核过的参数化查询。页面 03 只调用 `answer()`。P2 与 P3 没有共享业务模块。
 7. 测试集由 P5 出题和判定，P3 只读。样例缺失值不能当作统计零值或用旧混合日期补申请年。
@@ -23,7 +23,7 @@
 ## 提交前验证
 
 ```powershell
-python -m compileall -q app.py core scripts pages analysis qa eval legacy
+python -m compileall -q app.py core scripts pages analysis qa eval
 python -m eval.check_contracts
 python -m eval.smoke_test
 ```
@@ -34,5 +34,4 @@ GitHub Actions 在 main / develop 推送及指向它们的 PR 中执行这些基
 
 - `docs/团队分工.md`：用户提供的分工原文快照。
 - `docs/项目规划.md`：同目录 `项目规划(1).md` 的快照，包含三页架构、7.4.3 的 12 意图与 CQ10。原文 WP 角色仅作背景，实际所有权以分工为准。
-- `docs/legacy/`：旧运行说明、六页设计与验证结果，仅对应旧 Schema。
 - 本次为一次性公共骨架调整，未宣称达到 T0 全部交付或后续里程碑。后续开发按上表进行。

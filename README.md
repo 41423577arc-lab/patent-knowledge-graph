@@ -1,6 +1,6 @@
 # 新能源汽车产业技术情报知识图谱平台
 
-按 [团队分工](docs/团队分工.md) 调整的五人协作开发基线。新版采用三个独立页面，旧六页演示保留在 `legacy/`，原 CSV 保留在 `data/legacy/`。
+按 [团队分工](docs/团队分工.md) 调整的五人协作开发基线。新版采用三个独立页面；旧六页演示及其工具已移除，原 CSV 保留在 `data/legacy/` 作为存档。
 
 当前可运行：首页、三个页面入口、七表样例读取、问答返回结构。分析图表、12 意图问答、全量抽取和新 Schema 图谱导入由各负责人继续开发；骨架不代表这些功能已经完成。
 
@@ -17,7 +17,7 @@ python -m eval.check_contracts
 python -m streamlit run app.py
 ```
 
-默认 `USE_SAMPLE=true`，无需 Neo4j 或大模型 API。已提交七个 Parquet 样例；重建执行 `python -m scripts.seed_sample`。样例为旧 CSV 的前 150 条专利；缺失字段及空表见 [运行说明](docs/run.md)。
+默认 `USE_SAMPLE=true`，无需 Neo4j 或大模型 API。已提交七个 Parquet 样例；重建执行 `python -m scripts.seed_sample`。样例是从全量七表分层抽取的 481 件真实专利（含引用闭包），字段完整；口径与边界见 [运行说明](docs/run.md)。
 
 ## 目录与负责人
 
@@ -36,8 +36,7 @@ docs/schema.md / run.md            P1
 docs/qa_intents.md                 P3
 docs/说明文档.md 答辩稿.md ppt/    P4
 eval/ README.md delivery/          P5：评估与交付
-legacy/ data/legacy/               旧演示与旧数据，只读保留
-docs/legacy/                      旧说明与验证结果，仅作历史参考
+data/legacy/                      旧 CSV 存档，不再参与样例生成
 ```
 
 ## 开发分支
@@ -54,5 +53,3 @@ git push
 ```
 
 个人分支向 `develop` 提 PR，联调通过后 `develop` 向 `main` 提 PR。完整规则见 [协作指南](CONTRIBUTING.md)。
-
-旧六页演示：配置 `.env` 的 Neo4j 凭据后，执行 `powershell -File scripts/start_legacy.ps1`。旧版仍依赖原有数据库，新 Schema 尚未导入，详见 [docs/run.md](docs/run.md)。

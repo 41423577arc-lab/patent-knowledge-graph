@@ -1,0 +1,109 @@
+{
+  "source_reps": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\results\\representatives.parquet",
+  "sample_mode": false,
+  "patents": 106393,
+  "representatives": 106393,
+  "citations": {
+    "rows_with_cites": 50664,
+    "raw_cited_tokens": 443310,
+    "invalid_tokens": 0,
+    "self_edges_skipped": 12,
+    "unique_edges": 442917,
+    "in_sample_edges": 35114,
+    "external_edges": 407803,
+    "in_sample_rate": 0.0793,
+    "edges_with_applicant": 41395,
+    "applicant_coverage": 0.0935,
+    "external_edges_with_applicant": 15908,
+    "external_applicant_coverage": 0.039,
+    "external_applicant_rows": 46539,
+    "tokens_with_multiple_applicants": 1317,
+    "citing_patents_with_edges": 50663,
+    "base_collisions": 17,
+    "rows_with_cited_by": 31190
+  },
+  "cooperation": {
+    "multi_applicant_patents": 6704,
+    "pairs": 9826,
+    "max_weight": 553,
+    "top_pairs": [
+      {
+        "app_a": "Kia Corporation",
+        "app_b": "现代公司",
+        "weight": 553
+      },
+      {
+        "app_a": "中国南方",
+        "app_b": "重庆长安3",
+        "weight": 117
+      },
+      {
+        "app_a": "国家电网",
+        "app_b": "国电南瑞",
+        "weight": 90
+      },
+      {
+        "app_a": "国家电网",
+        "app_b": "浙江浙电",
+        "weight": 64
+      },
+      {
+        "app_a": "Costel Co., Ltd.",
+        "app_b": "코스텔(주)",
+        "weight": 64
+      },
+      {
+        "app_a": "东南大学",
+        "app_b": "国家电网",
+        "weight": 50
+      },
+      {
+        "app_a": "许继电气",
+        "app_b": "许继集团",
+        "weight": 47
+      },
+      {
+        "app_a": "Toshiba Infrastructure Systems & Solution Corp",
+        "app_b": "东芝公司",
+        "weight": 39
+      },
+      {
+        "app_a": "国家电网",
+        "app_b": "许继集团",
+        "weight": 36
+      },
+      {
+        "app_a": "日产公司",
+        "app_b": "雷诺公司",
+        "weight": 35
+      },
+      {
+        "app_a": "特来电新",
+        "app_b": "特锐德司",
+        "weight": 34
+      },
+      {
+        "app_a": "华北电大",
+        "app_b": "国家电网",
+        "weight": 34
+      },
+      {
+        "app_a": "国家电网",
+        "app_b": "许继电气",
+        "weight": 32
+      },
+      {
+        "app_a": "Kia Corp",
+        "app_b": "现代公司",
+        "weight": 32
+      },
+      {
+        "app_a": "丰田公司",
+        "app_b": "电装公司",
+        "weight": 32
+      }
+    ]
+  },
+  "elapsed_sec": 13.3,
+  "external_applicants_path": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\results\\external_citation_applicants.parquet"
+}

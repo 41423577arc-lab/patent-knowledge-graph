@@ -1,0 +1,40 @@
+{
+  "source": "G:\\大学\\课程\\知识图谱\\patent-knowledge-graph\\data\\raw\\原始专利汇总.xlsx",
+  "sample_mode": false,
+  "raw_rows": 142112,
+  "non_primary_rows": 3668,
+  "applications": 106393,
+  "patents": 106393,
+  "patents_by_type": {
+    "发明授权": 42678,
+    "发明申请": 19625,
+    "实用新型": 24511,
+    "外观设计": 19579
+  },
+  "design_patents": 19579,
+  "missing_pid": 0,
+  "missing_appno": 0,
+  "duplicate_representative_pid": 0,
+  "groups_only_non_primary": 2090,
+  "date_anomalies_nulled": 2,
+  "date_anomaly_samples": [
+    [
+      "NZ432550S",
+      "2023-09-01",
+      "2023-06-25"
+    ],
+    [
+      "PH12018000436B1",
+      "2018-12-12",
+      "2004-11-08"
+    ]
+  ],
+  "applicants_rows": 115927,
+  "unique_applicants": 27557,
+  "patents_without_applicants": 40,
+  "multi_applicant_patents": 6704,
+  "applicant_pair_length_mismatch": 233,
+  "applicant_type_foreign_unknown": 41319,
+  "first_applicant_true": 106353,
+  "elapsed_sec": 290.8
+}
