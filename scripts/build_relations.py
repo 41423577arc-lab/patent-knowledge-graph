@@ -321,6 +321,13 @@ def main():
 - 外部主体映射覆盖 {counts['citations']['external_applicant_coverage']*100:.1f}%，多数外部边仍无主体；依赖分析会受此限制。
 - kind code 归一后有 {base_collisions} 组 base 冲突，按首个代表专利映射，少量边可能误连。
 - 合作网络只基于标准化申请人；同一集团不同子公司若未归并，会表现为不同节点。
+
+## P1-8 补充：企业级引用聚合（口径 C）
+
+- `data/results/company_citation_pairs.parquet` 是从 `representatives.cited_applicants` 聚合出的**主体级**辅助表：`citing_company, cited_company, citing_patent_count`，共 135,007 对、165,355 条专利-主体对计数。
+- 同一件引用专利对同一被引主体只计一次；它是“引用集合里出现过”的聚合，不是精确的专利级边。
+- 需要精确外部边时，用 `external_citation_applicants.parquet` 的 `(citing_id, cited_id, applicant)` 明细；需要快速展示时用 `company_citation_pairs.parquet`。
+- 企业名通过 `company_alias.csv` 归一；Kia 与 Hyundai 不合并，`中国南方` 标 `pending_review`。
 """
         (DELIVERY_DIR / "说明.md").write_text(readme, encoding="utf-8")
 

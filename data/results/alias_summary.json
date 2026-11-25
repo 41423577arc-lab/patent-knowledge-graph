@@ -1,0 +1,133 @@
+{
+  "generated_at": "2026-11-25T20:06:48",
+  "alias_rows": 393,
+  "manual_aliases": 116,
+  "auto_ascii_aliases": 276,
+  "pending_review": 1,
+  "covered_applicant_rows": 9280,
+  "covered_patents": 9151,
+  "cooperation_raw_edges": 9826,
+  "cooperation_merged_edges": 9750,
+  "dropped_self_loops": 22,
+  "companies_after_merge": 27190,
+  "top_companies": [
+    {
+      "company": "现代公司",
+      "patents": 4008
+    },
+    {
+      "company": "丰田公司",
+      "patents": 2199
+    },
+    {
+      "company": "台铃科技",
+      "patents": 1838
+    },
+    {
+      "company": "本田公司",
+      "patents": 1602
+    },
+    {
+      "company": "国家电网",
+      "patents": 1593
+    },
+    {
+      "company": "爱玛科技",
+      "patents": 1467
+    },
+    {
+      "company": "比亚迪",
+      "patents": 1244
+    },
+    {
+      "company": "北汽集团",
+      "patents": 1117
+    },
+    {
+      "company": "三菱公司",
+      "patents": 1057
+    },
+    {
+      "company": "雅迪科技",
+      "patents": 1012
+    },
+    {
+      "company": "日产公司",
+      "patents": 897
+    },
+    {
+      "company": "福特汽车",
+      "patents": 864
+    },
+    {
+      "company": "奥动新能源",
+      "patents": 738
+    },
+    {
+      "company": "奇瑞汽车",
+      "patents": 695
+    },
+    {
+      "company": "东风汽车",
+      "patents": 638
+    }
+  ],
+  "top_cooperation": [
+    {
+      "app_a": "现代公司",
+      "app_b": "起亚",
+      "weight": 595
+    },
+    {
+      "app_a": "中国南方",
+      "app_b": "重庆长安",
+      "weight": 117
+    },
+    {
+      "app_a": "国家电网",
+      "app_b": "国电南瑞",
+      "weight": 90
+    },
+    {
+      "app_a": "国家电网",
+      "app_b": "浙江浙电",
+      "weight": 64
+    },
+    {
+      "app_a": "东南大学",
+      "app_b": "国家电网",
+      "weight": 50
+    },
+    {
+      "app_a": "许继电气",
+      "app_b": "许继集团",
+      "weight": 47
+    },
+    {
+      "app_a": "丰田公司",
+      "app_b": "斯巴鲁",
+      "weight": 44
+    },
+    {
+      "app_a": "Chaevi Co., Ltd.",
+      "app_b": "채비(주)",
+      "weight": 41
+    },
+    {
+      "app_a": "国家电网",
+      "app_b": "许继集团",
+      "weight": 36
+    },
+    {
+      "app_a": "日产公司",
+      "app_b": "雷诺公司",
+      "weight": 35
+    }
+  ],
+  "missing_manual_keys": [],
+  "notes": [
+    "Kia and Hyundai are separate canonical groups.",
+    "中国南方 is pending_review and not merged.",
+    "Contract applicants/cooperation tables are unchanged."
+  ]
+}

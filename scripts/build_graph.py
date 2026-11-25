@@ -144,6 +144,16 @@ def _counts(session):
     return nodes, rels
 
 
+def _server_info(session):
+    rows = session.run(
+        "CALL dbms.components() YIELD name, versions, edition "
+        "RETURN name, versions, edition").data()
+    kernel = next((row for row in rows if row["name"] == "Neo4j Kernel"), None)
+    if not kernel:
+        return "unknown", "unknown"
+    return kernel["versions"][0], kernel["edition"]
+
+
 def _clear_contract(session):
     labels = " OR ".join(f"n:{label}" for label in NODES)
     session.run(f"MATCH (n) WHERE {labels} DETACH DELETE n").consume()
@@ -316,6 +326,7 @@ def main():
         indexes = session.run(
             "SHOW INDEXES YIELD name, type, labelsOrTypes, properties "
             "RETURN name, type, labelsOrTypes, properties ORDER BY name").data()
+        neo4j_version, neo4j_edition = _server_info(session)
 
     driver.close()
 
@@ -325,7 +336,8 @@ def main():
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "scope": scope,
         "source": str(processed.relative_to(config.ROOT_DIR)).replace("\\", "/"),
-        "neo4j": {"uri": config.NEO4J_URI, "version": "5.26.0", "edition": "community"},
+        "neo4j": {"uri": config.NEO4J_URI, "version": neo4j_version,
+                  "edition": neo4j_edition},
         "nodes": actual_nodes,
         "relationships": actual_rels,
         "source_counts": data["source_counts"],
@@ -365,7 +377,7 @@ def main():
     readme = f"""# P1-7 Neo4j 图谱建图
 
 生成时间：{scale['generated_at']}
-数据源：`{scale['source']}`；Neo4j {scale['neo4j']['version']} Community，`{config.NEO4J_URI}`。
+数据源：`{scale['source']}`；Neo4j {scale['neo4j']['version']} {scale['neo4j']['edition']}，`{config.NEO4J_URI}`。
 
 ## 规模
 

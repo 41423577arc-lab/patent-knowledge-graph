@@ -143,7 +143,7 @@
 - 专利类型：发明授权 42,678、实用新型 24,511、发明申请 19,625、外观设计 19,579。
 - 非主文献 3,668 行；只有非主文献的申请 2,090 个（保留）。
 - 申请日异常置空 2 条；无申请人专利 40 件；多申请人专利 6,704 件。
-- 原始/标准化申请人数不一致 233 件，按位置对齐，可能有错位；Top 50 别名表待 P1-8 处理。
+- 原始/标准化申请人数不一致 233 件，按位置对齐，可能有错位；P1-8 已建展示层别名表，契约表未改。
 - 输出：`data/processed/patents.parquet`、`applicants.parquet`；副本在 `交付给同伴的内容/P1-2_清洗主表/`。
 
 ## 10. P1-3 技术识别结果
@@ -153,7 +153,7 @@
 - `patent_efficacy`：391,642 行；77,617 件有技术功效（89.4%）。
 - 外观设计 19,579 件不写 IPC/主题/功效。
 - Top 主题：驱动电机 17,533、充电桩 7,146、整车结构 6,876、整车电控（未细分）6,730、减速器与传动 5,380、电池成组与结构 5,060。
-- 主题是人工规则，`电机`、`热管理` 等宽泛词可能过匹配；`（未细分）` 是 IPC 兜底，不是细粒度主题。P1-8 抽样核对时调整。
+- 主题是人工规则，`电机`、`热管理` 等宽泛词可能过匹配；`（未细分）` 是 IPC 兜底，不是细粒度主题。P1-8 已量化并单列 `（未细分）`，未重跑词典以免破坏已交付样例/图谱。
 - 输出：`data/processed/patent_ipc.parquet`、`patent_topic.parquet`、`patent_efficacy.parquet`；`representatives.parquet` 供 P1-4 使用；副本在 `交付给同伴的内容/P1-3_技术识别/`。
 
 ## 11. P1-4 引用与合作结果
@@ -163,7 +163,7 @@
 - `external_citation_applicants.parquet`：46,539 行外部主体明细，供 P3 做企业级依赖/风险边；不是契约 C 七表之一。
 - `cooperation`：9,826 对合作主体，来自 6,704 件多申请人专利；最大权重 553（Kia Corporation ↔ 现代公司）。
 - Top 合作对：Kia Corporation ↔ 现代公司 553、中国南方 ↔ 重庆长安3 117、国家电网 ↔ 国电南瑞 90、国家电网 ↔ 浙江浙电 64、Costel Co., Ltd. ↔ 코스텔(주) 64。
-- 局限：样本内引用边仅 7.9%，外部主体覆盖 3.9%；kind code 归一后有 17 组 base 冲突；中英文/集团名未完全归并（Kia/Kia Corp、Toshiba/东芝公司、Costel/코스텔），P1-8 Top 50 别名表需处理。
+- 局限：样本内引用边仅 7.9%，外部主体覆盖 3.9%；kind code 归一后有 17 组 base 冲突；中英文/集团名未完全归并（Kia/Kia Corp、Toshiba/东芝公司、Costel/코스텔），P1-8 已做展示层别名，契约表未改。
 - 输出：`data/processed/citations.parquet`、`cooperation.parquet`；辅助表在 `data/results/external_citation_applicants.parquet`；副本在 `交付给同伴的内容/P1-4_引用合作/`。
 
 ## 12. P1-5 七表校验
@@ -184,3 +184,30 @@
 - 字段缺失：摘要 6 件、申请日/申请年 3 件；主题、功效不再为空。
 - 局限：**开发样例，不是统计抽样**；类型比例、引用密度均被选择规则改变，不能用于对外规模/趋势结论。
 - 输出：`data/_sample/`；副本在 `交付给同伴的内容/P1-6_真实样例/`。`eval.check_contracts` 与 `eval.smoke_test` 均通过。
+
+## 14. P1-7 Neo4j 图谱
+
+- Neo4j Desktop 本地实例，Neo4j 2026.10.2（enterprise），`neo4j://127.0.0.1:7687`；`scripts/build_graph.py` 从 `data/processed/` 导入，约 125 秒完成。
+- 节点：Patent 106,393、Applicant 27,557、IPC 13,166、Technology 50、Domain 8；合计 147,174。
+- 关系：APPLIES_FOR 115,927、CITES 35,114、HAS_IPC 306,023、INVOLVES 104,723、BELONGS_TO 50、CO_APPLIED_WITH 9,826；合计 571,663。
+- 5 个唯一约束 + 2 个索引（`patent.apply_year`、`patent.country`）；节点/关系计数与 parquet 逐项一致。
+- CITES 只导入样本内 35,114 条；外部 407,803 条不建占位节点，企业级分析用 `external_citation_applicants.parquet`。
+- 3 条样例查询已跑通：申请人专利数 Top 10、企业→IPC、企业→技术主题→领域；另验证了“企业→专利→被引专利→申请人”两跳路径。
+- 属性缺口：`Applicant.country` 为空、`IPC.name` 为空、`Technology.keywords` 为空、`Domain.description` 为空；均为源表没有的字段，未伪造。
+- 展示层企业别名尚未进图，`现代公司` / `Kia Corporation` 等仍是原始标准化名；P1-8 已做展示层别名映射，未改图节点名。
+- 输出：`data/results/scale.json`；副本在 `交付给同伴的内容/P1-7_图谱建图/`。
+
+## 15. P1-8 规模、质量与别名
+
+- 规模：原始 142,112 行 × 204 列；按申请号去重后 106,393 件；删除 35,719 行重复/非代表记录。
+- 表行数：applicants 115,927、patent_ipc 306,023、patent_topic 104,723、patent_efficacy 391,642、citations 442,917、cooperation 9,826。
+- 覆盖：非外观设计 86,814 件；IPC 99.0%、主题 82.35%、功效 89.41%；主题兜底 `（未细分）` 16,839 行，占主题行 16.1%。
+- 申请人：27,557 个标准化主体；6,704 件多申请人专利；40 件无申请人；2,931 行 `applicant_type` 为空，41,319 行“境外/未知”。
+- 引用：样本内 35,114 条（7.93%）；外部 407,803 条，其中有主体明细的外部边 15,908 条（3.90%）；`external_citation_applicants` 46,539 行、9,441 件引用专利。
+- 别名：393 条（manual 116、auto_en 276、pending_review 1），覆盖 9,151 件专利；合作边 9,826 → 9,750（删自环 22）；合并后企业 27,190 个。
+- 企业级引用：135,007 个主体对，涉及 11,263 个引用方、40,858 个被引方；专利-主体对计数 165,355。`cited_applicants` 未区分企业/高校/个人，表名是 `company_` 但实际为主体级。
+- **Kia 与 Hyundai 不合并**；`中国南方` 标 `pending_review`，未硬并；`中国南方 ↔ 重庆长安` 合作对仍可能出现，解读标“待核”。
+- 人工抽样：`manual_sample_100.csv` 100 条，类型 发明授权 40、实用新型 23、发明申请 19、外观设计 18；标签列留空给 P5。
+- 16 批次：`source_files` 行数见 `data_quality.json`；1,008 行样本显示 14 个批次全为“授权”、2 个批次全为“驳回”，说明批次按法律状态分层导出，不是随机全量。
+- 限制：别名不是完整实体消解；企业级引用是聚合不是精确边；主题宽泛词未重跑词典；100 条抽样待人工 P/R/F1。
+- 输出：`data/results/scale.json`、`data_quality.json`、`company_alias.csv`、`cooperation_merged.parquet`、`company_patent_counts.csv`、`company_citation_pairs.parquet`、`manual_sample_100.csv`、`topic_quality.csv`；副本在 `交付给同伴的内容/P1-8_质量与别名/`。
