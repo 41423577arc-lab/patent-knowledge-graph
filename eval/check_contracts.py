@@ -6,15 +6,18 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from core import config
-from core.data_loader import TABLE_COLUMNS, available_tables, load_table
+from core.data_loader import TABLE_COLUMNS, RESULT_COLUMNS, available_tables, load_table, load_result
 from core.database import run_query
-from qa.answer_builder import answer
+from qa.service import answer
 
 
 def main():
     assert config.USE_SAMPLE, "Run baseline checks with USE_SAMPLE=true"
     assert set(available_tables()) == set(TABLE_COLUMNS)
     tables = {name: load_table(name) for name in TABLE_COLUMNS}
+    for name in RESULT_COLUMNS:
+        assert list(load_result(name).columns) == RESULT_COLUMNS[name]
+        assert load_result(name).attrs["scope"] == "sample"
     patents = tables["patents"]
     assert not patents.empty
     assert patents["patent_id"].is_unique
@@ -37,11 +40,12 @@ def main():
         raise AssertionError("Invalid table names must be rejected")
 
     # Explicit full-data selection must not silently load committed sample data.
-    old_mode, old_dir = config.USE_SAMPLE, config.PROCESSED_DIR
+    old_mode, old_dir, old_results = config.USE_SAMPLE, config.PROCESSED_DIR, config.RESULTS_DIR
     try:
         with TemporaryDirectory() as directory:
             config.USE_SAMPLE = False
             config.PROCESSED_DIR = Path(directory)
+            config.RESULTS_DIR = Path(directory) / "results"
             assert available_tables() == []
             try:
                 load_table("patents")
@@ -51,8 +55,15 @@ def main():
                 raise AssertionError("Missing full data must fail explicitly")
             patents.to_parquet(Path(directory) / "patents.parquet", index=False)
             assert len(load_table("patents")) == len(patents)
+            try:
+                load_result("company_metrics")
+            except FileNotFoundError:
+                pass
+            else:
+                raise AssertionError("Missing full results must not fall back to sample")
     finally:
         config.USE_SAMPLE, config.PROCESSED_DIR = old_mode, old_dir
+        config.RESULTS_DIR = old_results
 
     result = answer("开发基线检查")
     assert set(result) == {"ok", "intent", "slots", "entities", "data", "graph",

@@ -23,3 +23,7 @@ data/processed/*
 .pytest_cache/
 delivery/*.mp4
 delivery/*.mov
+
+# Full-data metric results are generated locally
+data/results/*.parquet
+data/results/metrics_manifest.json

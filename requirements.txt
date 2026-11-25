@@ -1,6 +1,6 @@
 # Runtime dependencies (Python 3.10+)
 neo4j>=5.0
-streamlit>=1.31
+streamlit>=1.49
 plotly>=5.18
 pandas>=2.0
 openpyxl>=3.1
@@ -8,5 +8,6 @@ lxml>=4.9
 pyarrow>=14.0
 python-dotenv>=1.0
 networkx>=3.0
+scipy>=1.10
 rapidfuzz>=3.0
 openai>=1.0

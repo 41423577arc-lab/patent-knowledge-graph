@@ -11,15 +11,29 @@ def main():
     root = Path(__file__).resolve().parents[1]
     entries = [root / "app.py", *sorted((root / "pages").glob("*.py"))]
     assert len(entries) == 4
-    for entry in entries:
-        app = AppTest.from_file(str(entry), default_timeout=30).run()
-        assert not app.exception, f"{entry.name}: {app.exception}"
-        if entry.name.startswith("03_"):
-            app.text_input[0].set_value("某企业有哪些专利？").run()
-            app.button[0].click().run()
-            assert not app.exception, app.exception
-            assert app.warning, "Unimplemented QA must display its status"
-        print("PASS", entry.name)
+    old_backend = config.QA_BACKEND
+    config.QA_BACKEND = "mock"
+    try:
+        for entry in entries:
+            app = AppTest.from_file(str(entry), default_timeout=30).run()
+            assert not app.exception, f"{entry.name}: {app.exception}"
+            assert not app.error, f"{entry.name}: {app.error}"
+            if entry.name.startswith("03_"):
+                for question in ["演示：创新主体申请量排名", "演示：主体 A 的代表性专利", "演示：主体 A 的依赖暴露度"]:
+                    app.text_input[0].set_value(question).run()
+                    app.button[0].click().run()
+                    assert not app.exception and not app.error, (app.exception, app.error)
+                    assert any("【演示假数据】" in item.value for item in app.markdown)
+                app.text_input[0].set_value("不支持的问题").run()
+                app.button[0].click().run()
+                assert not app.exception and app.error
+                config.QA_BACKEND = "real"
+                app.button[0].click().run()
+                assert not app.exception and app.error
+                assert "待 P2 实现" in app.error[0].value
+            print("PASS", entry.name)
+    finally:
+        config.QA_BACKEND = old_backend
 
 
 if __name__ == "__main__":

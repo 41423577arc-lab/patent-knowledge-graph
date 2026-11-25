@@ -58,7 +58,30 @@ CREATE INDEX patent_country_v2 IF NOT EXISTS FOR (n:Patent) ON (n.country);
 run_query(cypher: str, params: dict | None = None, timeout: float = 10.0) -> list[dict]
 health_check() -> bool
 load_table(name: str) -> pandas.DataFrame
+load_result(name: str) -> pandas.DataFrame
 available_tables() -> list[str]
 ```
 
 配置键见 core/config.py 与 .env.example，包含契约 B 全部键。只接受可信预置参数化 Cypher，READ_ACCESS 是路由提示，数据库权限须用只读账号保障。超时取调用值与 QUERY_TIMEOUT 的较小值。断连时 health_check 返回 false，run_query 报错供页面处理。
+
+## 预计算结果契约（P1）
+
+| 名称 | 列（顺序固定） |
+|---|---|
+| company_metrics | applicant_std, patent_count, cited_count, pagerank, degree, betweenness |
+| topic_year | topic, domain, year, count |
+
+USE_SAMPLE=true 读取 data/_sample/results/，false 读取 data/results/。两目录均含 company_metrics.parquet、topic_year.parquet 与 metrics_manifest.json。load_result 只接受上述名称，校验列、行数、文件 SHA-256 与 manifest.scope（sample / full），拒绝混合版本，不回退另一范围。DataFrame.attrs 暴露 scope 与指标清单，供使用方展示。全量结果不提交 Git。
+
+### 计算口径
+
+- 输入：当前范围 patents.is_in_sample=true 的专利；申请人按 (patent_id, applicant_std) 去重。
+- patent_count：该主体关联的去重专利数；主体可能为企业、高校等，不保证均为企业。
+- cited_count：当前范围内引用 / 被引两端均有专利的去重 (citing_id, cited_id) 对数，按被引专利申请人汇总，含主体自引；不使用来源文件的累计被引数字，不计外部占位专利。
+- 引用网络：主体为节点，方向为引用方主体→被引方主体。每个专利引用对扩展到双方申请人组合，每个不同主体组合加权 1；排除主体自环。共同申请专利的每个主体分别获得完整关系计数，不能把主体计数相加当作专利总数。
+- pagerank：上述有向加权网络，alpha=0.85，包括孤立主体。无边且非空时为均匀分布。
+- degree：网络转无向后的去重邻居数 / (N−1)，不是原始边数；N≤1 时为 0。
+- betweenness：有向网络、不用边权距离、标准化最短路径中介中心性。N≤500 精确计算；更大网络固定 seed=42、k=128 抽样近似。manifest 记录计算方式，近似值不能称为精确值。
+- topic_year：按 topic / domain / apply_year 分组后的去重 patent_id 数，year 和 count 为整数。只保留非空主题 / 领域及合法整数申请年，不用旧混合日期替代申请年。
+
+scripts/calculate_metrics.py 是唯一指标实现位置。UI 不重复计算。结果清单记录数据范围、源表行数、节点 / 边数、PageRank 参数及中介近似方式；重新清洗后须重算，两张结果表与清单应整体交付。

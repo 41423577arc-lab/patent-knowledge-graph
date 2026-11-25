@@ -1,1 +1,1 @@
-"""P3: question answering engine, exclusively used by page 03."""
+"""P2: question answering backend. P3 calls only qa.service.answer()."""

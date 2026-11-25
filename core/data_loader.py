@@ -1,4 +1,8 @@
 """Frozen seven-table contract; no silent sample/full fallback."""
+import json
+import hashlib
+from io import BytesIO
+
 import pandas as pd
 
 from core import config
@@ -12,6 +16,11 @@ TABLE_COLUMNS = {
     "patent_efficacy": ["patent_id", "efficacy_l1", "efficacy_l2", "efficacy_l3"],
     "citations": ["citing_id", "cited_id", "cited_in_sample", "cited_applicant_std"],
     "cooperation": ["app_a", "app_b", "weight"],
+}
+
+RESULT_COLUMNS = {
+    "company_metrics": ["applicant_std", "patent_count", "cited_count", "pagerank", "degree", "betweenness"],
+    "topic_year": ["topic", "domain", "year", "count"],
 }
 
 
@@ -32,4 +41,29 @@ def load_table(name: str) -> pd.DataFrame:
     table = pd.read_parquet(path)
     if list(table.columns) != TABLE_COLUMNS[name]:
         raise ValueError(f"{name} does not match contract C; see docs/schema.md")
+    return table
+
+
+def load_result(name: str) -> pd.DataFrame:
+    """Load results from the selected scope, with no sample/full fallback."""
+    if name not in RESULT_COLUMNS:
+        raise ValueError(f"Unknown result {name!r}; choose from {list(RESULT_COLUMNS)}")
+    scope = "sample" if config.USE_SAMPLE else "full"
+    directory = config.DATA_DIR / "_sample" / "results" if config.USE_SAMPLE else config.RESULTS_DIR
+    path = directory / f"{name}.parquet"
+    manifest_path = directory / "metrics_manifest.json"
+    if not path.is_file() or not manifest_path.is_file():
+        raise FileNotFoundError(f"Missing result/manifest at {directory}; run python -m scripts.calculate_metrics")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("scope") != scope:
+        raise ValueError(f"Result scope mismatch: expected {scope}")
+    content = path.read_bytes()
+    if manifest.get("file_sha256", {}).get(name) != hashlib.sha256(content).hexdigest():
+        raise ValueError(f"{name} checksum does not match metrics_manifest.json; regenerate results")
+    table = pd.read_parquet(BytesIO(content))
+    if list(table.columns) != RESULT_COLUMNS[name]:
+        raise ValueError(f"{name} does not match contract C; see docs/schema.md")
+    if manifest.get("row_counts", {}).get(name) != len(table):
+        raise ValueError(f"{name} row count does not match metrics_manifest.json")
+    table.attrs.update({"scope": scope, "metrics_manifest": manifest})
     return table

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "scope": "sample",
+  "created_at": "2026-11-25T03:56:49.311378+00:00",
+  "row_counts": {
+    "company_metrics": 124,
+    "topic_year": 0
+  },
+  "file_sha256": {
+    "company_metrics": "3bb66c40a39290cdf27a710e7a983c91c4948d47535c943e3cb7ebca8ab7f264",
+    "topic_year": "8163170a5cb9856a8881b470f26e3e9f6c0539fe30f91cd4806860d1fb08e44a"
+  },
+  "source_rows": {
+    "patents": 150,
+    "applicants": 162,
+    "patent_ipc": 123,
+    "citations": 615,
+    "cooperation": 14,
+    "patent_topic": 0,
+    "patent_efficacy": 0
+  },
+  "node_count": 124,
+  "edge_count": 0,
+  "betweenness": {
+    "method": "exact",
+    "k": null,
+    "seed": 42
+  },
+  "pagerank": {
+    "alpha": 0.85,
+    "direction": "citing applicant -> cited applicant",
+    "weighted": true
+  },
+  "scope_note": "Only patents and citation endpoints in the selected dataset; no external stubs."
+}

@@ -22,6 +22,9 @@ _sample_flag = os.getenv("USE_SAMPLE", "true").lower().strip()
 if _sample_flag not in {"true", "false", "1", "0", "yes", "no"}:
     raise ValueError("USE_SAMPLE must be true or false")
 USE_SAMPLE = _sample_flag in {"true", "1", "yes"}
+QA_BACKEND = os.getenv("QA_BACKEND", "mock").lower().strip()
+if QA_BACKEND not in {"mock", "real"}:
+    raise ValueError("QA_BACKEND must be mock or real")
 QUERY_TIMEOUT = float(os.getenv("QUERY_TIMEOUT", "10"))
 if QUERY_TIMEOUT <= 0:
     raise ValueError("QUERY_TIMEOUT must be positive")

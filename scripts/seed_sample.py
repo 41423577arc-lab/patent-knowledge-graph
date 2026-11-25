@@ -53,6 +53,8 @@ def main():
     }
     for name, table in tables.items():
         table[TABLE_COLUMNS[name]].to_parquet(target / f"{name}.parquet", index=False)
+    from scripts.calculate_metrics import write_results
+    write_results(tables, target / "results", "sample")
     (target / "manifest.json").write_text(json.dumps({
         "source": "data/legacy/*.csv", "kind": "development_subset",
         "patents": len(patents), "selection": "first 150 rows of legacy patents.csv",
