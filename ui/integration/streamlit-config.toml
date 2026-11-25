@@ -1,0 +1,14 @@
+# Review/copy to .streamlit/config.toml; no backend/credentials configuration here.
+[theme]
+base = "dark"
+primaryColor = "#00d9ef"
+backgroundColor = "#071b2a"
+secondaryBackgroundColor = "#0d293d"
+textColor = "#f0f6fc"
+font = "sans serif"
+
+[client]
+showSidebarNavigation = false
+
+[browser]
+gatherUsageStats = false
