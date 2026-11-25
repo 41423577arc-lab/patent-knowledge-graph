@@ -7,3 +7,5 @@
 .gitignore text eol=lf
 .env.example text eol=lf
 *.parquet binary
+# Preserve the archived verification log without newline conversion.
+docs/legacy/verify.txt -text
