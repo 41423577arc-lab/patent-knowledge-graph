@@ -293,6 +293,9 @@ def _sources(turn: dict | None, state: dict):
 def render():
     apply_theme("智能问答与关联路径")
     state = _state()
+    handoff = st.session_state.pop("ev_qa_prefill", None)
+    if handoff:
+        _fill_draft(handoff)
     st.html(heading_html("智能问答与关联路径", "以自然语言提出完整问题，查看可解释的答案、实体关联与路径。"))
     _mode_bar()
     history, center, source = st.columns([19, 58, 23], gap="small")
