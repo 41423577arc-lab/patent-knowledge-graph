@@ -15,6 +15,74 @@ from qa.service import answer
 
 
 class IntentTests(unittest.TestCase):
+    def test_unsupported_filters_are_not_silently_broadened(self):
+        with patch.object(config, "QA_BACKEND", "real"), patch("qa.answer_builder.Retrieval") as retrieve:
+            for question, message in (
+                ("只查高校，专利申请量最多的是哪家？", "主体类别筛选"),
+                ("2018年以前的专利申请量排名", "明确起止年份"),
+                ("2200年专利申请量最高的创新主体是谁？", "截至 2025"),
+            ):
+                with self.subTest(question=question):
+                    result = answer(question, "rule")
+                    self.assertFalse(result["ok"])
+                    self.assertIn(message, result["error"])
+            retrieve.assert_not_called()
+
+    def test_natural_ranking_with_explicit_metrics(self):
+        cases = {
+            "新能源汽车产业里哪家企业的专利申请数量排第一？": (intents.TOP, 1),
+            "新能源汽车领域专利数排名前3的公司？": (intents.TOP, 3),
+            "哪家新能源汽车企业的专利被引次数最多？": (intents.INFLUENCE, 1),
+            "按 PageRank 查看新能源汽车企业的专利引用影响力排名。": (intents.INFLUENCE, None),
+            "新能源汽车行业里，「驱动电机」方面哪家公司申请的专利最多？": (intents.TOPIC_APPLICANTS, 1),
+            "在新能源汽车领域，驱动电机技术主题的主要创新主体是谁？": (intents.TOPIC_APPLICANTS, None),
+            "「驱动电机」技术的主要申请人有哪些？列前3名。": (intents.TOPIC_APPLICANTS, 3),
+            "不看销量，新能源汽车公司按专利申请量排名谁第一？": (intents.TOP, None),
+        }
+        for question, (intent, limit) in cases.items():
+            with self.subTest(question=question):
+                self.assertEqual(intents.rule_intent(question), intent)
+                if limit:
+                    self.assertEqual(intents.rule_slots(question, intent)["limit"], limit)
+
+    def test_rating_and_market_queries_stop_before_llm_or_graph(self):
+        cases = {
+            "目前最厉害的新能源汽车公司是哪个？": "明确",
+            "新能源车企谁申请的专利最多？": "整车制造商",
+            "新能源汽车产业谁最强？": "明确",
+            "新能源汽车行业有哪些领先的公司？": "明确",
+            "新能源汽车行业排第一的是？": "明确",
+            "谁是新能源汽车龙头企业？": "明确",
+            "新能源汽车产业的主要创新主体是谁？": "先选",
+            "新能源汽车的年度申请量如何变化？": "指定细分主题",
+            "新能源车卖得最好的是哪家？": "商业数据",
+            "新能源汽车企业营收最高的是谁？": "商业数据",
+            "按市值排一下新能源汽车企业，再看专利": "商业数据",
+        }
+        with patch.object(config, "QA_BACKEND", "real"), patch.object(config, "LLM_API_KEY", "test"), \
+             patch("qa.llm_client.classify") as classifier, patch("qa.answer_builder.Catalog") as catalog:
+            for question, message in cases.items():
+                for mode in ("auto", "llm", "rule"):
+                    with self.subTest(question=question, mode=mode):
+                        result = answer(question, mode)
+                        self.assertFalse(result["ok"])
+                        self.assertIn(message, result["error"])
+                        self.assertEqual(result["intent"], "")
+                        self.assertFalse(result["entities"]["candidates"])
+                        self.assertTrue(result["suggestions"])
+            classifier.assert_not_called()
+            catalog.assert_not_called()
+
+    def test_generic_topic_from_model_stops_before_entity_linking(self):
+        with patch.object(config, "QA_BACKEND", "real"), patch.object(config, "LLM_API_KEY", "test"), \
+             patch("qa.llm_client.classify", return_value=(intents.TOPIC_APPLICANTS, {"topic": "新能源汽车"})), \
+             patch("qa.answer_builder.Catalog") as catalog:
+            result = answer("想了解新能源汽车的专利研究分布", "auto")
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["slots"], {})
+        self.assertIn("研究范围", result["error"])
+        catalog.assert_not_called()
+
     def test_p3_examples(self):
         for intent, question in intents.EXAMPLES.items():
             with self.subTest(intent=intent):
@@ -85,6 +153,16 @@ class EntityTests(unittest.TestCase):
             catalog = Catalog("topic", {})
         self.assertEqual(catalog.link("动力电池热管理年度申请量怎么变")[0].name, "动力电池热管理")
         self.assertIsNone(catalog.link("量子穿梭主题")[0])
+
+    def test_model_cannot_hide_multiple_exact_entities(self):
+        question = "Kia 和 Hyundai 的代表性专利有哪些？"
+        with patch.object(config, "QA_BACKEND", "real"), patch.object(config, "LLM_API_KEY", "test"), \
+             patch("qa.llm_client.classify", return_value=(intents.PATENTS, {"applicant": "Kia"})), \
+             patch("qa.answer_builder.Retrieval") as retrieve:
+            response = answer(question, "llm")
+        self.assertFalse(response["ok"])
+        self.assertEqual({e["name"] for e in response["entities"]["candidates"]}, {"起亚株式会社", "现代汽车株式会社"})
+        retrieve.assert_not_called()
 
 
 class DependencyTests(unittest.TestCase):
@@ -203,6 +281,15 @@ class LlmTests(unittest.TestCase):
         with patch("qa.llm_client.complete_json", return_value={"sentences": ["范围。", "999 件。", "口径。"]}):
             with self.assertRaises(llm_client.ModelUnavailable):
                 llm_client.organize(["范围。", "2 件。", "口径。"])
+
+    def test_evidence_order_preserves_original_facts(self):
+        sentences = ["范围。", "2 件。", "证据。", "局限。"]
+        with patch("qa.llm_client.complete_json", return_value={"order": [0, 2, 1, 3]}):
+            self.assertEqual(llm_client.organize(sentences), "范围。证据。2 件。局限。")
+        for order in ([0, 1, 1, 3], [0, True, 2, 3], [0, 1, 2, 4], [1, 0, 2, 3]):
+            with self.subTest(order=order), patch("qa.llm_client.complete_json", return_value={"order": order}):
+                with self.assertRaises(llm_client.ModelUnavailable):
+                    llm_client.organize(sentences)
 
     def test_generation_timeout_does_not_requery(self):
         with patch.object(config, "LLM_API_KEY", "unit-test"), patch.object(config, "QA_BACKEND", "real"), \

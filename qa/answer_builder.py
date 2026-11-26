@@ -2,6 +2,8 @@
 from collections.abc import Mapping
 from datetime import date
 from decimal import Decimal
+import logging
+from enum import Enum
 from math import isfinite
 from numbers import Integral, Real
 
@@ -11,6 +13,31 @@ from core import config
 from qa import auxiliary, cache, dependency, intents as I, llm_client
 from qa.entity_linker import Catalog
 from qa.retrieval import QueryUnavailable, Retrieval, ScopeMismatch
+
+logger = logging.getLogger(__name__)
+
+
+class Status(Enum):
+    SUCCESS = "SUCCESS"
+    NEED_CLARIFICATION = "NEED_CLARIFICATION"
+    AMBIGUOUS_ENTITY = "AMBIGUOUS_ENTITY"
+    DATA_UNAVAILABLE = "DATA_UNAVAILABLE"
+    OUT_OF_SCOPE = "OUT_OF_SCOPE"
+    SYSTEM_ERROR = "SYSTEM_ERROR"
+
+
+def _finish(result, status, requested):
+    logger.info("QA response status=%s requested=%s actual=%s intent=%s",
+                status.value, requested, result["mode"], result["intent"])
+    return result
+
+
+def _log_model_failure(stage, failure):
+    cause = failure.__cause__
+    status = getattr(cause, "status_code", None)
+    logger.warning("QA model fallback stage=%s cause=%s http_status=%s", stage,
+                   type(cause).__name__ if cause else type(failure).__name__,
+                   status if type(status) is int else None)
 
 
 def failure(message: str) -> dict:
@@ -111,12 +138,17 @@ def _parse(question, try_llm):
     rule = I.rule_intent(question)
     if try_llm:
         try:
+            logger.info("QA model call stage=classify")
             intent, slots = llm_client.classify(question)
             if intent and (not rule or rule == intent):
                 # Rule-readable parameters and explicit candidate confirmation have precedence.
+                slots = {key: value for key, value in slots.items()
+                         if key not in {"subject_scope", "start_year", "end_year"}}
+                logger.info("QA model accepted stage=classify intent=%s", intent)
                 return intent, {**slots, **I.rule_slots(question, intent)}, True
-        except llm_client.ModelUnavailable:
-            pass
+            logger.info("QA classifier fallback reason=%s", "rule_conflict" if intent else "no_intent")
+        except llm_client.ModelUnavailable as exc:
+            _log_model_failure("classify", exc)
     return rule, I.rule_slots(question, rule) if rule else {}, False
 
 
@@ -131,15 +163,23 @@ def answer(question: str, mode: str = "auto") -> dict:
     if len(question) > 1000:
         result["error"] = "问题最多 1000 个字符，请保留一个问题。"
         return result
+    issue = I.request_issue(question)
+    if issue:
+        reason, message = issue
+        result.update(error=message, suggestions=list(I.RANKING_SUGGESTIONS))
+        return _finish(result, Status(reason), mode)
     try_llm = mode != "rule" and bool(config.LLM_API_KEY)
+    if mode != "rule" and not try_llm:
+        logger.info("QA classifier fallback reason=unconfigured_key")
     executed = []
     retrieval = None
     cache_key = cache.key(question)
+    status = Status.NEED_CLARIFICATION
     try:
         intent, raw, model_routed = _parse(question, try_llm)
         if not intent:
             result["error"] = "目前支持 12 类新能源汽车专利问题，请参考示例。"
-            return result
+            return _finish(result, Status.OUT_OF_SCOPE, mode)
         result["intent"] = intent
         slots = I.validate(intent, raw)
         result["slots"] = slots
@@ -147,19 +187,36 @@ def answer(question: str, mode: str = "auto") -> dict:
         slot = I.ENTITY_SLOT.get(intent)
         entity = None
         if slot:
-            entity, candidates = Catalog(slot, aliases).link(question, slots.get(slot))
-            if entity is None and model_routed and slot in slots and slot not in I.rule_slots(question, intent):
-                entity, rule_candidates = Catalog(slot, aliases).link(question)
+            if slot == "topic" and I.is_industry_topic(slots.get(slot)):
+                result.update(intent="", slots={},
+                              error="新能源汽车是当前研究范围。请指定一个具体技术主题，或改按专利指标比较企业。",
+                              suggestions=list(I.RANKING_SUGGESTIONS))
+                return _finish(result, Status.NEED_CLARIFICATION, mode)
+            catalog = Catalog(slot, aliases)
+            model_mention = model_routed and slot in slots and slot not in I.rule_slots(question, intent)
+            if model_mention:
+                _, exact_candidates = catalog.link(question, exact_only=True)
+                if exact_candidates:
+                    result["entities"]["candidates"] = exact_candidates
+                    slots.pop(slot)
+                    result["error"] = "实体存在歧义，请确认候选后重新查询。"
+                    return _finish(result, Status.AMBIGUOUS_ENTITY, mode)
+            entity, candidates = catalog.link(question, slots.get(slot))
+            if entity is None and model_mention:
+                entity, rule_candidates = catalog.link(question)
                 candidates = rule_candidates or candidates
                 if entity:
                     slots.pop(slot)
                     model_routed = False
+                    logger.info("QA entity fallback reason=model_entity_unresolved slot=%s", slot)
             if entity is None:
+                if model_routed:
+                    logger.info("QA model path ended reason=entity_unresolved slot=%s", slot)
                 result["entities"]["candidates"] = candidates
                 result["error"] = "实体存在歧义或只有相近名称，请确认候选后重新查询。" if candidates else (
                     "当前数据范围找不到该创新主体，请提供完整名称。" if slot == "applicant" else
                     "当前数据范围找不到该技术主题，请提供图谱中的主题全名。")
-                return result
+                return _finish(result, Status.AMBIGUOUS_ENTITY if candidates else Status.NEED_CLARIFICATION, mode)
             slots.setdefault(slot, entity.name)
             result["entities"]["resolved"][slot] = entity.public
         retrieval = Retrieval(intent, slots, entity, aliases, executed)
@@ -168,21 +225,32 @@ def answer(question: str, mode: str = "auto") -> dict:
         result.update(data=rows, graph=json_value(retrieval.graph.public), conclusion="".join(sentences))
         if not rows:
             result["error"] = "当前数据范围不足以回答这个问题。"
-            return result
+            return _finish(result, Status.DATA_UNAVAILABLE, mode)
         result.update(ok=True, error=None, suggestions=[])
+        status = Status.SUCCESS
         if retrieval.graph_verified and cache.key(question) == cache_key:
             cache.remember(cache_key, {**result, "cypher": "\n\n".join(executed)})
         if model_routed:
             try:
+                logger.info("QA model call stage=organize")
                 result.update(conclusion=llm_client.organize(sentences), mode="llm")
-            except llm_client.ModelUnavailable:
-                pass
+                logger.info("QA model accepted stage=organize")
+            except llm_client.ModelUnavailable as exc:
+                _log_model_failure("organize", exc)
     except QueryUnavailable as exc:
-        return cache.recover(cache_key) or {**result, "error": str(exc), "cypher": "\n\n".join(executed)}
+        cached = cache.recover(cache_key)
+        if cached:
+            return _finish(cached, Status.SUCCESS, mode)
+        return _finish({**result, "error": str(exc), "cypher": "\n\n".join(executed)}, Status.SYSTEM_ERROR, mode)
     except (I.InvalidSlots, auxiliary.DataUnavailable, ScopeMismatch) as exc:
         result["error"] = str(exc)
+        if isinstance(exc, I.UnsupportedScope):
+            status = Status.OUT_OF_SCOPE
+        elif not isinstance(exc, I.InvalidSlots) or isinstance(exc, I.IncompleteYears):
+            status = Status.DATA_UNAVAILABLE
     except (OSError, ValueError, KeyError, TypeError, ImportError):
         result["error"] = "P1 数据文件缺失、不可读或不符合契约，请核对数据和依赖配置。"
+        status = Status.SYSTEM_ERROR
     finally:
         result["cypher"] = "\n\n".join(executed)
-    return result
+    return _finish(result, status, mode)

@@ -11,12 +11,13 @@ TECHNICAL = "NOT p.patent_type CONTAINS '外观设计'"
 SOURCE = "UNWIND $members AS name MATCH (a:Applicant {name: name})-[:APPLIES_FOR]->(p:Patent)"
 TOP = f"""
 MATCH (a:Applicant)-[:APPLIES_FOR]->(p:Patent)
-WHERE {WINDOW}
+WHERE {WINDOW} AND (NOT $enterprise_only OR a.type = '企业')
 RETURN a.name AS applicant_std, count(DISTINCT p) AS patent_count
 ORDER BY patent_count DESC, applicant_std LIMIT $limit
 """
 INFLUENCE = """
 MATCH (p:Patent)-[:CITES]->(q:Patent)<-[:APPLIES_FOR]-(a:Applicant)
+WHERE NOT $enterprise_only OR a.type = '企业'
 RETURN a.name AS applicant_std, count(DISTINCT [p.patent_id, q.patent_id]) AS cited_count
 ORDER BY cited_count DESC, applicant_std LIMIT $limit
 """
@@ -129,7 +130,7 @@ ORDER BY cited_count DESC, year DESC, patent_id LIMIT $limit
 """
 TOPIC_APPLICANTS = f"""
 MATCH (t:Technology {{name: $topic}})<-[:INVOLVES]-(p:Patent)<-[:APPLIES_FOR]-(a:Applicant)
-WHERE {WINDOW} AND {TECHNICAL}
+WHERE {WINDOW} AND {TECHNICAL} AND (NOT $enterprise_only OR a.type = '企业')
 WITH p, a ORDER BY p.patent_id
 RETURN a.name AS applicant_std, count(DISTINCT p) AS patent_count, head(collect(p.patent_id)) AS patent
 ORDER BY patent_count DESC, applicant_std LIMIT $limit

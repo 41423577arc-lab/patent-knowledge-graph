@@ -36,6 +36,7 @@ class Retrieval:
         self.aliases = aliases
         self.params = {"start_year": slots.get("start_year"), "end_year": slots.get("end_year"),
                        "limit": slots.get("limit", 10), "ipc_scope": slots.get("ipc_scope", "all"),
+                       "enterprise_only": slots.get("subject_scope") == "enterprise",
                        "members": list(entity.members) if entity else [],
                        "topic": entity.name if entity and entity.kind == "Technology" else ""}
         self.executed = executed
@@ -87,6 +88,9 @@ class Retrieval:
         return frame
 
     def retrieve(self):
+        if self.intent in I.RANKED_SUBJECTS:
+            self.notes.append("主体范围为 P1 标注为企业的申请人；该分类包含非整车制造商。"
+                              if self.params["enterprise_only"] else "主体范围为当前数据集全部申请人。")
         handlers = {I.INFLUENCE: self.influence, I.COOP: self.cooperation, I.LAYOUT: self.cooperation,
                     I.TREND: self.trends, I.GROWTH: self.trends, I.CITATION: self.citations,
                     I.DEPENDENCY: self.citations}
@@ -105,6 +109,12 @@ class Retrieval:
         self.notes.append("来源为 P1 company_metrics，统计范围为样本内引用网络，覆盖整个选定数据集。")
         if not metrics.attrs["metrics_manifest"].get("edge_count"):
             self.notes.append("当前样本内主体网络没有引用边，网络指标缺少关系证据。")
+        if self.params["enterprise_only"]:
+            applicants = load_table("applicants").dropna(subset=["applicant_std", "applicant_type"])
+            applicants = applicants[applicants.applicant_type.str.strip().ne("")]
+            # Match the P1 graph importer's per-name modal type, including its tie-break.
+            mode = applicants.groupby("applicant_std").applicant_type.agg(lambda labels: labels.value_counts().index[0])
+            metrics = metrics[metrics.applicant_std.isin(mode[mode.eq("企业")].index)]
         return (metrics.dropna(subset=[metric]).sort_values([metric, "applicant_std"], ascending=[False, True])
                 .head(self.params["limit"]).to_dict("records"))
 

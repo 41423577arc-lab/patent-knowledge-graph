@@ -7,6 +7,7 @@ import unicodedata
 from rapidfuzz import fuzz, process
 
 from core.data_loader import load_table
+from qa.intents import is_industry_topic
 
 
 def normalize(value):
@@ -44,6 +45,8 @@ class Catalog:
                     self._add(alias, canonical)
         else:
             for name in load_table("patent_topic").topic.dropna().unique():
+                if is_industry_topic(name):
+                    continue
                 self.members[name].add(name)
                 self._add(name, name)
 
@@ -52,8 +55,10 @@ class Catalog:
         if key:
             self.keys[key].add(canonical)
 
-    def link(self, question, mention=None):
+    def link(self, question, mention=None, *, exact_only=False):
         """Embedded exact matches may resolve; approximate matches require confirmation."""
+        if self.kind == "Technology" and is_industry_topic(mention):
+            return None, []
         text = normalize(question)
         if mention:
             key = normalize(mention)
@@ -84,6 +89,8 @@ class Catalog:
             return Entity(name, self.kind, tuple(sorted(self.members[name]))), []
         if matched:
             return None, [self._candidate(name, 1.0) for name in sorted(matched)[:8]]
+        if exact_only:
+            return None, []
         guessed = mention or re.split(
             r"布局|涉及|的年度|的近|这些年|近年来|和哪些|与哪些|的合作|引用|的代表性|的技术|的专利|的主要|是否|[？?]",
             question, maxsplit=1,
