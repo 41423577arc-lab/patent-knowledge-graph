@@ -38,6 +38,7 @@ Copy-Item 仅在无 .env 时执行，保留已有本地配置。默认样例模�
 9. `python -m scripts.build_company_alias` 生成展示层别名、合并合作边、企业专利数。
 10. `python -m scripts.build_company_citations` 生成企业级引用聚合（口径 C）。
 11. `python -m scripts.build_quality_report` 生成/更新 `scale.json`、`data_quality.json`、`manual_sample_100.csv`、`topic_quality.csv`。
+12. `python -m scripts.calculate_metrics` 生成当前 `USE_SAMPLE` 范围的 `company_metrics.parquet`、`topic_year.parquet`、`metrics_manifest.json`；全量再执行 `USE_SAMPLE=false python -m scripts.calculate_metrics`。
 
 `data/processed/` 为空时 `load_table` 会明确报错，不回退样例。全量图已导入：Patent 106,393、Applicant 27,557、IPC 13,166、Technology 50、Domain 8；六类关系共 571,663 条（Neo4j 2026.10.2，Desktop 本地实例）。
 
@@ -47,6 +48,13 @@ Copy-Item 仅在无 .env 时执行，保留已有本地配置。默认样例模�
 - `data/results/company_citation_pairs.parquet`、`company_citation_summary.json`：企业级引用聚合；不是精确专利边。
 - `data/results/manual_sample_100.csv`：100 条人工核对框，标签列待 P5 填；`topic_quality.csv` 标出 `（未细分）`。
 - `data/results/data_quality.json`：规模、覆盖、缺失、16 批次、已知问题；`scale.json` 同时保留图谱计数和 P1-8 统计。
+
+### 预计算指标（页面一/二）
+
+- 样例：`data/_sample/results/company_metrics.parquet`、`topic_year.parquet`、`metrics_manifest.json`。
+- 全量：`data/results/company_metrics.parquet`、`topic_year.parquet`、`metrics_manifest.json`。
+- 读取：`core.data_loader.load_result("company_metrics" / "topic_year")`；按 `USE_SAMPLE` 切换，校验 scope、行数、SHA-256，不跨范围回退。
+- 重算：`python -m scripts.calculate_metrics`；全量加 `USE_SAMPLE=false`。计算依赖 `networkx` + `scipy`。
 
 ### Neo4j Desktop 注意
 

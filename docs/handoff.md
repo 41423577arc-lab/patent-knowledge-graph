@@ -13,6 +13,7 @@
 | Neo4j | Desktop 本地实例 2026.10.2，147,174 节点 / 571,663 关系 |
 | 图谱校验 | 节点/关系计数与 parquet 逐项一致 |
 | 页面冒烟 | `eval.smoke_test` 4 个入口全过 |
+| 预计算指标 | 样例 366 家 / 295 行；全量 27,557 家 / 1,293 行；`load_result` 可读 |
 | 企业别名 | 393 条，展示层；契约表未改 |
 | 企业级引用 | 135,007 个主体对；口径 C 聚合 |
 | 人工抽样 | 100 条核对框，标签待 P5 填 |
@@ -65,6 +66,9 @@ rows = run_query("MATCH (p:Patent) RETURN count(p) AS n")
 | `manual_sample_100.csv` | 100 行 | 人工抽样核对框；标签待 P5 填 |
 | `manual_sample_100.md` | — | 抽样与 P/R/F1 计算说明 |
 | `topic_quality.csv` | 50 主题 | 主题计数、`（未细分）` 标记 |
+| `company_metrics.parquet` | 样例 366 / 全量 27,557 行 | P2/P3 预计算企业指标；`load_result` 读取 |
+| `topic_year.parquet` | 样例 295 / 全量 1,293 行 | 主题×年度计数；P2 页面一、P3 趋势 |
+| `metrics_manifest.json` | — | 结果 scope、行数、SHA-256；样例/全量各一份 |
 | `data_quality.json` | — | 规模、覆盖、缺失、16 批次、已知问题 |
 | `scale.json` | — | 图谱计数 + P1-8 统计；`status=done`、`graph_status=ok` |
 | `contract_check.json` | — | 34 项结构校验 |
@@ -79,9 +83,11 @@ rows = run_query("MATCH (p:Patent) RETURN count(p) AS n")
 - 页面一用 `load_table("patents")` + `patent_ipc` + `patent_topic` + `patent_efficacy`；**不要**用 `company_patent_counts` 算专利总量。
 - 专利总量/类型/国别：**106,393**。
 - 技术图（IPC/主题/功效）：**86,814** 技术类；标题注“占技术类专利”。
+- 主题年度表：`load_result("topic_year")`（样例 295 行 / 全量 1,293 行），不要自己从 `patent_topic` 重算。
 - 企业排行：`company_patent_counts.csv`（展示层合并），不要直接改契约 `applicants`。
+- 企业指标：`load_result("company_metrics")`（样例 366 家 / 全量 27,557 家），含 `patent_count`、`cited_count`、`pagerank`、`degree`、`betweenness`；前端不要重算中心性。
 - 合作网络：`cooperation_merged.parquet`（9,750 条），标题注“展示层合并，契约表未改”。
-- 影响力/PageRank：Neo4j `CITES` 只有样本内 35,114 条，标题必须写“样本内引用网络”，不能写“全产业影响力”。
+- 影响力/PageRank：`company_metrics` 基于样本内 CITES 的申请人引用图，无外部占位节点；标题必须写“样本内引用网络”，不能写“全产业影响力”。
 - 企业技术布局：用 `HAS_IPC` / `INVOLVES`，外观设计没有技术属性。
 - 年趋势：2010/2015—2023；2024—2025 标“不完整”。
 - 申请人类型空值显示“未知”；“境外/未知”保持原样。

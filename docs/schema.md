@@ -80,6 +80,37 @@ python -m scripts.build_graph --sample # 样例（需 --reset）
 
 规则：Kia 与 Hyundai **不合并**；`中国南方` 是 `pending_review`，不硬并；别名不是完整实体消解；企业级引用是“引用集合里出现过”的聚合，不是精确专利边。`citations.parquet` / `cooperation.parquet` / `applicants.parquet` 保持原样。
 
+## 预计算指标（结果表）
+
+P2 页面一/二和 P3 部分意图使用预计算表，不自行重算网络指标。入口：
+
+```python
+from core.data_loader import load_result
+metrics = load_result("company_metrics")
+yearly = load_result("topic_year")
+```
+
+| 表 | 列 | 口径 |
+|---|---|---|
+| `company_metrics` | applicant_std, patent_count, cited_count, pagerank, degree, betweenness | 选定范围内申请人的专利数、被引计数、引用网络中心性 |
+| `topic_year` | topic, domain, year, count | 主题 × 申请年去重专利数；只保留非空主题/领域和合法整数申请年 |
+
+目录与 manifest：
+
+- `USE_SAMPLE=true` → `data/_sample/results/`
+- `USE_SAMPLE=false` → `data/results/`
+- 两个目录各有一份 `metrics_manifest.json`，记录 `scope`（sample/full）、行数、文件 SHA-256、源表行数、PageRank/中介中心性参数。
+- `load_result` 校验列名、行数、SHA-256 和 scope；样例/全量不混用、不回退。
+- `company_metrics` 的引用网络只使用样本内 CITES（不建外部占位节点）；`cited_count` 是“被引专利-引用专利”去重计数，不是全产业被引量。
+- `topic_year` 的全量行数 1,293；样例 295。2024—2025 仍在表内，但页面趋势只用到 2023。
+
+重新生成：
+
+```bash
+python -m scripts.calculate_metrics              # 当前 USE_SAMPLE
+USE_SAMPLE=false python -m scripts.calculate_metrics
+```
+
 ## 七表列定义
 
 | 文件 | 列（顺序固定） |
