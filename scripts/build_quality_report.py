@@ -355,8 +355,19 @@ def main():
     manual = _manual_frame(patents, applicants, ipc, topic, efficacy, citations,
                            cooperation, reps)
     manual_path = RESULTS / "manual_sample_100.csv"
+    # Preserve completed manual labels when regenerating the sampling frame.
+    label_cols = ["label_applicant", "label_ipc", "label_topic",
+                  "label_efficacy", "label_citation", "label_cooperation"]
+    if manual_path.exists():
+        old_manual = pd.read_csv(manual_path)
+        if "patent_id" in old_manual.columns:
+            old_manual = old_manual.drop_duplicates("patent_id").set_index("patent_id")
+            for col in label_cols + ["notes"]:
+                if col in old_manual.columns:
+                    manual[col] = manual["patent_id"].map(old_manual[col])
     manual.to_csv(manual_path, index=False, encoding="utf-8-sig")
 
+    protocol_path = RESULTS / "manual_sample_100.md"
     protocol = f"""# P1-8 人工抽样核对（100 条）
 
 生成时间：{scale['p1_8']['generated_at']}
@@ -370,7 +381,7 @@ def main():
 
 ## 核对方法
 
-P5 / 人工逐条看原文，在 `label_*` 列填 `1`（正确）、`0`（错误）、`0.5`（部分正确），`notes` 写原因。建议至少两人独立核对 20 条后再统一口径。
+逐条对照原文，在 `label_*` 列填 `1`（正确）、`0`（错误）、`0.5`（部分正确），`notes` 写原因；建议至少两人独立核对 20 条后再统一口径。
 
 字段对应：
 
@@ -394,10 +405,11 @@ P5 / 人工逐条看原文，在 `label_*` 列填 `1`（正确）、`0`（错误
 
 ## 边界
 
-- 这是**抽样核对框**，不是已经完成的 P/R/F1；标签列留空，由 P5/人工填写。
+- 标注结果见 `manual_sample_100.csv`，汇总指标见 `manual_sample_100_metrics.json`；100 条只能说明抽样误差。
 - 100 条只能说明抽样误差，不能替代全量校验；全量结构校验见 `contract_check.json`。
 """
-    (RESULTS / "manual_sample_100.md").write_text(protocol, encoding="utf-8")
+    if not protocol_path.exists():
+        protocol_path.write_text(protocol, encoding="utf-8")
 
     DELIVERY.mkdir(parents=True, exist_ok=True)
     for name in ["scale.json", "data_quality.json", "manual_sample_100.csv",
@@ -417,8 +429,8 @@ P5 / 人工逐条看原文，在 `label_*` 列填 `1`（正确）、`0`（错误
 | `company_patent_counts.csv` | 合并后的企业专利数、申请行数、别名数、占比 |
 | `company_citation_pairs.parquet` | 企业级引用聚合（口径 C） |
 | `company_citation_summary.json` | H1 覆盖与 Top 企业对 |
-| `manual_sample_100.csv` | 100 条分层抽样核对框，标签列待 P5 填 |
-| `manual_sample_100.md` | 抽样与 P/R/F1 计算说明 |
+| `manual_sample_100.csv` | 100 条分层抽样核对结果，标签已填 |
+| `manual_sample_100.md` | 抽样、标注结果与 P/R/F1 说明 |
 | `topic_quality.csv` | 主题计数、领域、是否 `（未细分）`、占技术类专利比例 |
 | `data_quality.json` | 规模、覆盖、缺失、批次、已知问题 |
 | `scale.json` | 图谱计数 + P1-8 数据集统计 |
@@ -446,7 +458,7 @@ P5 / 人工逐条看原文，在 `label_*` 列填 `1`（正确）、`0`（错误
 
 - 别名表不是完整实体消解；集团级合并会隐藏子公司差异。
 - 企业级引用是聚合，不是精确专利边；`cited_applicants` 无法还原单件被引专利。
-- 100 条抽样仍待人工填标签，P/R/F1 由 P5 完成。
+- 100 条抽样已完成标注与 P/R/F1 统计，结果见 `manual_sample_100.md`。
 """
     (DELIVERY / "说明.md").write_text(readme, encoding="utf-8")
 

@@ -37,7 +37,7 @@ Copy-Item 仅在无 .env 时执行，保留已有本地配置。默认样例模�
 8. `USE_SAMPLE=false`，重启验证图查询。
 9. `python -m scripts.build_company_alias` 生成展示层别名、合并合作边、企业专利数。
 10. `python -m scripts.build_company_citations` 生成企业级引用聚合（口径 C）。
-11. `python -m scripts.build_quality_report` 生成/更新 `scale.json`、`data_quality.json`、`manual_sample_100.csv`、`topic_quality.csv`。
+11. `python -m scripts.build_quality_report` 生成/更新 `scale.json`、`data_quality.json`、`manual_sample_100.csv`、`topic_quality.csv`；已填的人工标签会保留。
 12. `python -m scripts.calculate_metrics` 生成当前 `USE_SAMPLE` 范围的 `company_metrics.parquet`、`topic_year.parquet`、`metrics_manifest.json`；全量再执行 `USE_SAMPLE=false python -m scripts.calculate_metrics`。
 
 `data/processed/` 为空时 `load_table` 会明确报错，不回退样例。全量图已导入：Patent 106,393、Applicant 27,557、IPC 13,166、Technology 50、Domain 8；六类关系共 571,663 条（Neo4j 2026.10.2，Desktop 本地实例）。
@@ -46,7 +46,7 @@ Copy-Item 仅在无 .env 时执行，保留已有本地配置。默认样例模�
 
 - `data/results/company_alias.csv`、`cooperation_merged.parquet`、`company_patent_counts.csv`：别名与企业级合作；契约表不改。
 - `data/results/company_citation_pairs.parquet`、`company_citation_summary.json`：企业级引用聚合；不是精确专利边。
-- `data/results/manual_sample_100.csv`：100 条人工核对框，标签列待 P5 填；`topic_quality.csv` 标出 `（未细分）`。
+- `data/results/manual_sample_100.csv`：100 条人工核对结果，标签已填，结果见 `manual_sample_100.md`；`topic_quality.csv` 标出 `（未细分）`。
 - `data/results/data_quality.json`：规模、覆盖、缺失、16 批次、已知问题；`scale.json` 同时保留图谱计数和 P1-8 统计。
 
 ### 预计算指标（页面一/二）

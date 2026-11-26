@@ -94,7 +94,7 @@ def node_chips(draw, y, labels):
 
 def diagram1():
     # Pure modeling flow: tightly cropped, no slide furniture.
-    image = Image.new("RGBA", (1800, 360), (0, 0, 0, 0))
+    image = Image.new("RGBA", (1640, 400), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     boxes = [
         ("P1-1", "字段梳理", "公开号 / 申请号\n申请人 / IPC / 主题 / 功效"),
@@ -102,15 +102,15 @@ def diagram1():
         ("P1-2 / P1-3", "实体与关系", "5 类节点\n6 类关系"),
         ("P1-3", "编号与接口", "唯一编号 / 表间对应\nload_table / run_query"),
     ]
-    xs = [60, 480, 900, 1320]
-    y, w, h = 65, 360, 230
+    xs = [50, 440, 830, 1220]
+    y, w, h = 70, 340, 250
     for i, (step, title, sub) in enumerate(boxes):
         box(draw, (xs[i], y, xs[i] + w, y + h))
-        text(draw, (xs[i] + 24, y + 22), step, 18, NEON, bold=True)
-        text(draw, (xs[i] + 24, y + 58), title, 30, INK, bold=True)
-        text(draw, (xs[i] + 24, y + 115), sub, 19, MUTED, spacing=6)
+        text(draw, (xs[i] + 24, y + 24), step, 23, NEON, bold=True)
+        text(draw, (xs[i] + 24, y + 66), title, 38, INK, bold=True)
+        text(draw, (xs[i] + 24, y + 132), sub, 24, MUTED, spacing=8)
         if i < 3:
-            arrow(draw, (xs[i] + 365, y + h / 2), (xs[i + 1] - 5, y + h / 2))
+            arrow(draw, (xs[i] + 345, y + h / 2), (xs[i + 1] - 5, y + h / 2))
     image.save(OUT / "p1_modeling_flow.png")
 
 
@@ -171,8 +171,9 @@ def neo4j_graph():
     image = Image.open(src).convert("RGBA")
     bbox = image.getbbox()
     margin = 36
-    cropped = image.crop((max(0, bbox[0] - margin), max(0, bbox[1] - margin),
-                          min(image.width, bbox[2] + margin), min(image.height, bbox[3] + margin)))
+    left = max(150, bbox[0] - margin)
+    cropped = image.crop((left, max(0, bbox[1] - margin),
+                          min(image.width, bbox[2] + margin), min(image.height, bbox[3] + 60)))
     cropped.save(OUT / "p1_neo4j_graph.png")
     print("neo4j graph", cropped.size)
 

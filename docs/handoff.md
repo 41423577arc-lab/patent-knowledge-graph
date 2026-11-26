@@ -1,7 +1,7 @@
 # P1 交接说明（数据、图谱、口径）
 
 > 更新：2026-11-25。配套：[schema.md](schema.md)、[run.md](run.md)、[data_profile.md](data_profile.md)、[page_metrics.md](page_metrics.md)。
-> 一句话：七张全量表、481 件样例、Neo4j 全量契约图、展示层别名/企业级引用、100 条人工核对框都已就绪；页面口径按 [page_metrics.md](page_metrics.md) 执行。
+> 一句话：七张全量表、481 件样例、Neo4j 全量契约图、展示层别名/企业级引用、100 条人工核对结果都已就绪；页面口径按 [page_metrics.md](page_metrics.md) 执行。
 
 ## 0. 当前状态
 
@@ -16,7 +16,7 @@
 | 预计算指标 | 样例 366 家 / 295 行；全量 27,557 家 / 1,293 行；`load_result` 可读 |
 | 企业别名 | 393 条，展示层；契约表未改 |
 | 企业级引用 | 135,007 个主体对；口径 C 聚合 |
-| 人工抽样 | 100 条核对框，标签待 P5 填 |
+| 人工抽样 | 100 条核对结果，标签已填 |
 
 ## 1. 数据入口
 
@@ -63,8 +63,8 @@ rows = run_query("MATCH (p:Patent) RETURN count(p) AS n")
 | `company_patent_counts.csv` | 27,190 企业 | 展示层企业专利数；P2 排行 |
 | `company_citation_pairs.parquet` | 135,007 对 | 主体级引用聚合（口径 C）；快速展示 |
 | `company_citation_summary.json` | — | H1 覆盖、Top 主体对 |
-| `manual_sample_100.csv` | 100 行 | 人工抽样核对框；标签待 P5 填 |
-| `manual_sample_100.md` | — | 抽样与 P/R/F1 计算说明 |
+| `manual_sample_100.csv` | 100 行 | 人工抽样核对结果；标签已填 |
+| `manual_sample_100.md` | — | 抽样、标注结果与 P/R/F1 说明 |
 | `topic_quality.csv` | 50 主题 | 主题计数、`（未细分）` 标记 |
 | `company_metrics.parquet` | 样例 366 / 全量 27,557 行 | P2/P3 预计算企业指标；`load_result` 读取 |
 | `topic_year.parquet` | 样例 295 / 全量 1,293 行 | 主题×年度计数；P2 页面一、P3 趋势 |
@@ -123,11 +123,11 @@ rows = run_query("MATCH (p:Patent) RETURN count(p) AS n")
 
 - 结构校验：`data/results/contract_check.json`，34/34 通过；8 个数据缺失警告。
 - 规模/质量：`data/results/scale.json`、`data_quality.json`。
-- 抽样：`manual_sample_100.csv` 100 条，标签列 `label_*` 留空；按 `manual_sample_100.md` 填正确/错误/部分正确，再算 P/R/F1。
+- 抽样：`manual_sample_100.csv` 100 条，标签列 `label_*` 已填；按 `manual_sample_100.md` 直接引用准确率与 P/R/F1 结果，不重复计算。
 - 别名：`company_alias.csv` + `alias_summary.json`；H1：`company_citation_pairs.parquet` + `company_citation_summary.json`。
 - 主题：`topic_quality.csv`；`（未细分）` 单列。
 - 一致性：`eval.check_contracts`、`eval.smoke_test` 均可复跑。
-- 注意：100 条抽样是核对框，不是已完成的 P/R/F1；P5 需要人工标注。
+- 注意：100 条抽样已完成标注与 P/R/F1 统计；结果见 `manual_sample_100.md`。
 
 ## 7. 不能回答 / 不能宣称
 

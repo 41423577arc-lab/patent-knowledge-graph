@@ -1,0 +1,54 @@
+{
+  "n": 100,
+  "field_accuracy": {
+    "label_applicant": 1.0,
+    "label_ipc": 1.0,
+    "label_topic": 0.675,
+    "label_efficacy": 1.0,
+    "label_citation": 1.0,
+    "label_cooperation": 1.0
+  },
+  "label_distribution": {
+    "label_applicant": {
+      "1": 100
+    },
+    "label_ipc": {
+      "1": 100
+    },
+    "label_topic": {
+      "0.0": 15,
+      "0.5": 35,
+      "1.0": 50
+    },
+    "label_efficacy": {
+      "1": 100
+    },
+    "label_citation": {
+      "1": 100
+    },
+    "label_cooperation": {
+      "1": 100
+    }
+  },
+  "cooperation_applicable": 9,
+  "cooperation_note": "100 条中仅多申请人专利存在共同申请对；单申请人行不进入合作分母。",
+  "citation_edges": {
+    "predicted": 418,
+    "true": 418,
+    "tp": 418,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+  },
+  "topic_non_design": {
+    "n": 82,
+    "accuracy": 0.6037,
+    "distribution": {
+      "0.0": 15,
+      "0.5": 35,
+      "1.0": 32
+    },
+    "design_n": 18
+  },
+  "cooperation_accuracy_applicable": 1.0
+}
