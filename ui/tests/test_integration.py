@@ -53,6 +53,21 @@ class EvidenceTests(unittest.TestCase):
         self.assertTrue(frame.empty)
         self.assertNotIn("patent_count",frame)
 
+    def test_patent_citations_use_direction_unique_pairs_and_current_scope(self):
+        import pandas as pd
+        tables=self.bundle["tables"]
+        edges=tables["citations"]
+        internal=edges.loc[edges["cited_id"].isin(tables["patents"]["patent_id"])]
+        patent_id=internal.iloc[0]["cited_id"]
+        actual=data.patent_citation_stats(self.bundle,patent_id)
+        expected=edges.loc[edges["cited_id"].eq(patent_id),"citing_id"].nunique()
+        self.assertEqual(actual["cited_count"],expected)
+        duplicated={**self.bundle,"tables":{**tables,"citations":pd.concat([edges,edges],ignore_index=True)}}
+        self.assertEqual(data.patent_citation_stats(duplicated,patent_id),actual)
+        outgoing=edges.loc[edges["citing_id"].eq(patent_id)]
+        self.assertEqual(actual["citing_count"],outgoing["cited_id"].nunique())
+        with self.assertRaises(ValueError):data.patent_citation_stats(self.bundle,"OUTSIDE_CURRENT_DATA")
+
     def test_result_source_identity_rejects_same_size_changed_content(self):
         tables=self.bundle["tables"]
         candidate=data.topic_year().copy()

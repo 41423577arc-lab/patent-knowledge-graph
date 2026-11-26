@@ -1,223 +1,115 @@
-# UI 规范、v0 迁移与前端验收（P3）
+# P3 前端最终交付说明
 
-更新：2026-11-25。实现保留 Python + Streamlit + Plotly；视觉来源为用户提供的 project.zip。没有将 Next.js 工程或 mock-adapter 作为正式运行服务。
+更新：2026-11-26。Python + Streamlit + Plotly，沿用深色青蓝设计和既有66个本地素材，没有新增运行依赖。三个业务页面及首页导航保留；正式统计不使用原型模拟数值。
 
-## 分工与接口核查
+## 三个页面
 
-任务文本的人员职责和 qa.answer_builder 导入示例属于旧版。当前团队分工明确：P1 管 core/scripts/data/requirements，P2 管 qa/，P3 管 app/pages/ui/analysis。本次遵循实际冻结契约 `qa.service.answer(question, mode="auto")`，不修改 qa/、core/、scripts/、data/、requirements.txt、eval/ 或其他成员文档。
-
-优先迁移 pages/03。页面一、二保留原业务代码；通过已有 ui/theme.py、ui/components.py 获得公共视觉，不覆盖其取数和指标逻辑。新资源及适配代码均放入已有 P3 所有的 ui/，没有新增跨人共享目录。
-
-### 已执行的迁移计划
-
-| 范围 | 文件 | 迁移方式与依赖 |
-|---|---|---|
-| 原始设计素材 | ui/assets/、ui/assets.py | 逐字节复制原 public 品牌、汽车、风车公路、波纹、网络、SVG 图标；用本地 data URI 引用 |
-| 全局视觉 | ui/theme.py、ui/styles.css、ui/components.py | 提取颜色/字号/间距，保留原生页面导航与组件；共用页头和 Plotly 模板 |
-| 问答页面 | pages/03_智能问答与关联路径.py、ui/qa_workbench.py | 原生三栏、st.chat_input、历史、来源、图表、候选确认与大图 |
-| 轻量显示适配 | ui/qa_state.py、ui/qa_visuals.py | 校验返回结构、管理会话、按返回列绘图；不做问答识别、查询或风险计算 |
-| 公共框架建议 | ui/integration/streamlit-config.toml、ui/run_preview.ps1 | 官方主题配置参考及不改共享配置的预览启动器 |
-| 测试交付 | ui/tests/、ui/integration/p5-smoke-update.patch | P3 自有测试和供 P5 审阅的旧冒烟检查迁移补丁 |
-
-## 原型核查结论
-
-直接复用：public/brand/logo_ev.svg、ev-banner.png、sidebar-energy.png、decor/ 下三种装饰及 icons/svg/ 默认/激活图标，共 66 个文件。ui/assets/manifest.json 记录 ZIP 和各资源的 SHA-256；未重新生成、裁切或替换原图。
-
-重写：PlatformShell → 原生侧栏导航与品牌栏；QaWorkbench → Streamlit 状态与控件；ResultGraph → Plotly 原生平移、缩放、选点和弹窗；TrendChart/RankingChart → 根据真实返回字段构造 Plotly 图。
-
-不迁移：lib/mock-adapter.ts 的问题匹配、650ms 假延迟、mock/answers.json、初始虚构答案、固定企业排名、全景数值、中心性/增长率和示例风险阈值。
-
-源码确认的问题：
-
-- 12 个问题入口并不等于 12 个模拟成功意图；成功 fixture 仅覆盖部分意图，其他入口会返回未支持。
-- overview 的技术领域/国别主要改变选择状态；主体页的年份也未真正过滤主体数据。正式页面不能用“筛选器已选中”代替数据联动。
-- 原型全景趋势按可见数据最小/最大值映射 SVG 高度，但 Y 轴仍是固定 0—100,000 刻度，数值位置不一致。正式采用 Plotly 数值坐标，不迁移原型轴刻度或最小柱宽等视觉造数。
-- History 没有传给后端形成多轮上下文；正式页面同样只声明“本地历史”。
-- fullscreen/clipboard 调用没有完整异常分支；正式版使用原生弹窗大图与 st.code 的复制功能。
-- MIGRATION.md 的“只实现 P3”描述与 ZIP 内同时存在 overview/applicants 页面不一致，导入路径也落后于当前 service 契约。其说明仅作参考。
-
-## 设计系统
-
-| 项 | 从实际 CSS 提取的规则 |
+| 页面 | 最终功能 |
 |---|---|
-| 背景 | #071b2a；局部径向渐变 #0b2638 |
-| 导航 | #0c2538 → #0a1d2c，宽约 218px，较窄桌面约 198px |
-| 面板 | #0d293d；次级 #10334a；边框 #23536c |
-| 强调 | 青色 #00d9ef、蓝色 #329bf5；告警采用琥珀色，不混作业务风险评分 |
-| 文字 | #f0f6fc；次级 #a8bdcc；Microsoft YaHei / Noto Sans SC / Arial 本地字体 |
-| 圆角 / 阴影 | 面板 12–13px，控件 8–10px；轻量青色内发光与低透明黑影 |
-| 顶栏 / 页头 | 品牌栏约 58px；独立页头约 118px；汽车与波纹绝对定位叠加，pointer-events:none |
-| 数字 | 整数千分位；已知比例暴露度显示 1 位百分数；其他后端数值不猜测单位 |
-| 状态 | 空结果、错误、演示与规则模式各自明确说明；缺失值不补零 |
+| 产业技术全景 | 申请年、公开国别、领域筛选；主题检索与选择；年度趋势和关联专利分页；单件详情、筛选重置、范围提示、主题标准问答入口 |
+| 创新主体与合作网络 | 原始/确认别名口径切换；排行图/表选择、搜索和下拉备用；主体申请量、技术布局、年度趋势、代表性及全部专利；合作选择、共同申请证据和主体问答 |
+| 智能问答与关联路径 | 三栏工作台、12类意图、跨页预填后确认发送；澄清候选、建议、编辑、重试和返回来源；实际模式、数据、图表、真实图谱节点/关系与Cypher溯源 |
 
-汽车/充电桩/天际线是页头主视觉，风车/公路是侧栏主视觉，波纹和网络仅辅助叠加。装饰不占正文流、不阻挡导航和输入。所有图片和 CSS 均在本地，不依赖远程字体或图床。
+跨页保存来源筛选和选择；预填、取消、编辑或重绘均不自动发送。后端仅接收用户确认的单轮问题；最近50次本地历史不作为多轮语义上下文。仅导出当前统计汇总：主题年度、主体排行、主体技术分布、合作关系，附范围说明；未经确认授权的全量原始专利及摘要不开放批量下载，仍可查看单件证据。
 
-CSS 使用固定的 st.container key 类与有限的语义 data-testid，不引用哈希样式类、不注入 DOM 操作脚本。原生组件与渲染层仍可能随 Streamlit 大版本变化，升级后应重跑 UI 测试。
+## P1 数据和统计口径
 
-## 问答工作台与会话
+固定数据来源为 tianguo-P1 的 `0549afd`，57个交付文件已核验。独立快照不代表该分支全部提交已合入P3。七表通过公共加载器读取，不修改P1字段、Schema或中心性定义。
 
-三栏比例 19 / 58 / 23；窄屏允许原生列换行，桌面保持中央优先。没有固定覆盖图谱的输入条，也没有锁死整个工作区的多层滚动。
+- 全量106,393件专利；Neo4j为147,174节点、571,663关系，内部引用35,114条。外部引用保留表证据，不造外部占位专利节点。
+- 七表：patents、applicants、ipc、topics、efficacy、citations、cooperation。
+- 辅助文件：company_alias.csv、company_patent_counts.csv、cooperation_merged.parquet、company_citation_pairs.parquet、external_citation_applicants.parquet。最后一项来自P1-4，其余来自P1-8。
+- 读取company_metrics.parquet的patent_count、cited_count、pagerank、degree、betweenness，以及topic_year.parquet。网络指标保持原始标准化主体和研究内部引证网络口径，不累加别名成员中心性；共同申请网络单独展示。
+- 别名委托P2 `qa.auxiliary.aliases()`，兼容相同已确认单跳映射，排除pending_review及冲突，不自行模糊扩展、不改applicant_std。页面显示展示主体包含的原始名称。
+- 合并申请量按当前范围patent_id集合去重；主体详情、技术布局、专利明细使用同一集合。样例仅统计样例集合，不使用全量辅助数量或边权。
+- 合作证据取双方专利集合交集去重，并校验原始合作贡献；排除自合作、未确认名称及不可靠边，不把引用当合作。保留P1原始权重溯源，不改正式表。
 
-- 左栏保存当前会话最近 50 次提交和摘要；选择历史同步恢复该条回答、数据、图谱、参数与模式。新建会话清空当前记录，不触发服务调用。
-- 中栏使用单一 st.chat_input，支持中文与 Shift+Enter 换行，空输入不提交；pending/busy 和请求 ID 防止重复追加。服务失败保留完整问题，可原样重试或放回输入框编辑。
-- 右栏展示当前条目的提交时数据配置、返回行数、意图、槽位、实体、后端返回的 Cypher、原始 data/graph；未提供来源、缓存标识或数据快照时明确标注，不宣称实时数据。
-- QA_BACKEND=mock 的每条答案明确标注为假数据；USE_SAMPLE 与 QA_BACKEND 独立。切换历史时使用该条保存的配置，而不是用当前配置重写历史来源。
-- 当前接口仅单轮问题。历史不自动传给 answer()，不宣称多轮语义理解。重启或浏览器会话结束不保证历史持久化。
+实际差异：现代公司合并后4,008件专利，包含四个原始名称；与Doowon Climate Control Co Ltd共同申请证据10件，P1/P2合并边累加11。另两对也存在重复贡献。P3采用去重证据数量并说明P1权重，不强求数字相等，不要求改写P2核心逻辑。
 
-候选实体仅使用返回的 entities.candidates。选择后生成可编辑的完整问题，用户明确确认才重新提交；不传私有槽位参数、不假定“示例机构”等硬编码替换规则。相似度缺失不补 100%，候选不完整时请用户补全问题。
+年度统计使用申请年，完整年度结论范围2010—2023；2024—2025保留明细并提示不完整。主题与领域在同一关联行匹配。预计算不支持公开国别等筛选时，使用筛选后基础表去重分组；固定网络指标明确标注范围，不冒称已筛选。
 
-服务异常仅展示适合用户的超时或不可用提示，不打印可能含凭据的原始异常/堆栈。失败不会回退到 v0 假数据。
+## 全量运行条件
 
-## 按意图显示与图谱
+使用已经核验的运行副本和独立Neo4j，不自动重建、导入或清空数据库。个人路径、凭据、迁移记录和验收原始证据只在本地保留。仅克隆代码不会获得本机全量数据和数据库。
 
-ui/qa_visuals.py 覆盖规划的 12 个意图，支持正式后端常见的英文列与中文显示列。实际 data 未返回对应字段时不造图、不造数；未知列保留在数据表。
+```text
+<基准目录>/
+  source_manifest.json
+  交付给同伴的内容/          # 不可变交付原件
+  runtime-data/
+    processed/               # 全量七表
+    results/                 # 全量指标、清单、五类辅助文件
+    _sample/                 # 481件样例七表
+      results/               # 对应样例指标和清单
+```
 
-| 意图 | 展示策略 |
+来源清单记录固定commit、各文件path/blob/sha256。运行副本的两份metrics_manifest保留P1 scope、source_rows及结果文件SHA-256，追加七表source_table_sha256和local_provenance.source_commit/source_directory。七表签名为加载表 `to_json(orient="split", index=False, date_format="iso", force_ascii=False)` 的UTF-8 SHA-256。source_directory指向不可变交付原件，其父目录保存source_manifest。此为本地接入证明，不冒称P1签发；迁移机器必须重新核验路径与签名，不覆盖原件。
+
+没有有效来源证明时，指标拒绝展示，别名保守退回原始口径并提示原因，不静默显示零值。新环境需先准备上述经核验副本。
+
+忽略的本地.env配置：DATA_DIR、USE_SAMPLE=false、QA_BACKEND=real、NEO4J_URI、NEO4J_USER、NEO4J_PASSWORD。环境变量优先。模型可选LLM_API_BASE、LLM_MODEL、LLM_API_KEY；本次实测DeepSeek / deepseek-flash。无模型密钥时规则模式仍可用。不要混用样例表和全量图；样例真实图测试需要独立匹配实例。
+
+## P2 接口与兼容
+
+保持 `qa.service.answer(question, mode="auto")`，支持auto/rule/llm。接入业务提交`e04cd56`，包含`68e947b`，没有改写P2代码。远端最新`aa176ad`相对此版本仅增加交付文档、README及首页说明，未自动覆盖P3首页。
+
+跨页模板集中在ui/questions.py，以真实EXAMPLES与规则解析为准。12类为Q_TOP_APPLICANTS、Q_INFLUENTIAL_APPLICANTS、Q_COMPANY_IPC、Q_COOPERATION、Q_COOP_LAYOUT、Q_TOPIC_TREND、Q_GROWTH_TOPICS、Q_TOPIC_APPLICANTS、Q_COMPANY_TOPICS_DOMAIN、Q_CITATION_APPLICANTS、Q_DEPENDENCY_EXPOSURE、Q_COMPANY_PATENTS。
+
+兼容读取ok、intent、slots、entities、conclusion、data、graph、cypher、mode、error、suggestions；附加状态不作为必需字段。正常、澄清、歧义、超范围、数据不足与故障分别提示。候选来自entities.candidates，建议来自suggestions，实际模型降级显示规则模式；不把所有ok=false当系统错误，不展示敏感堆栈。
+
+| 尚不支持的请求 | 明确替代方案 |
 |---|---|
-| Q_TOP_APPLICANTS / Q_TOPIC_APPLICANTS | 只对返回的主体和计数绘制排名 |
-| Q_INFLUENTIAL_APPLICANTS | 允许在实际返回的被引 / PageRank / 中心性列间切换 |
-| Q_COMPANY_IPC | 已返回 IPC / 领域与数值的柱状图 |
-| Q_COOPERATION | 实际共同申请子图，或返回的合作次数表 / 柱状图 |
-| Q_TOPIC_TREND | 明确 year / apply_year / 年份和计数才绘折线，缺年或重复序列提示核对 |
-| Q_GROWTH_TOPICS | 返回规模和增长两轴时绘散点；参考线仅为当前记录中位数，不是产业阈值 |
-| Q_COMPANY_TOPICS_DOMAIN / Q_COOP_LAYOUT / Q_CITATION_APPLICANTS | 优先真实返回路径；缺少图时仅表格或已有数值 |
-| Q_DEPENDENCY_EXPOSURE | 已返回的 0—1 暴露度；不推算引用总数、不补阈值和风险结论 |
-| Q_COMPANY_PATENTS | 返回的代表性专利列表，不用专利号或年份伪造指标 |
+| 独立专利编号意图 | 单件详情和证据；显式转查该专利申请主体的代表性专利 |
+| 双主体精确合作问答 | 第二页直接查询双方共同申请专利；分别查看单主体合作问答 |
+| 复合意图 | 两个独立按钮，用户分别确认，不自动连续请求 |
+| 问答沿用页面公开国别等筛选 | 明确提示按后端支持范围执行，不传私有参数 |
 
-指标卡明确写“当前返回最高”，只从现有数值取展示最大值，不能当作数据库总体。暴露度公式是 c(A,B)/C_A；规划里的“如 30 次”未成为冻结配置，前端不自行决定样本阈值或单点依赖标记。专利引用是技术知识关联代理，不等同于采购、供应链依赖或商业风险。
+图谱只绘真实返回并验证类型、方向和端点。视口最多128节点、200关系，合作图最多30边，明确提示裁剪；完整返回、证据及选择框保留。密集图精确点击提供表格/下拉替代。引用是技术知识关联代理，不解释为采购关系或商业风险。
 
-图谱只使用 graph.nodes/edges：按 Schema 检查类型与方向，异常关系从绘图排除并提示，原始返回仍在溯源保留。APPLIES_FOR、CITES、HAS_IPC、INVOLVES、BELONGS_TO 有箭头；CO_APPLIED_WITH 作为无向关系，不把引用解释成合作，不补占位节点。
+## 启动与验证
 
-原生 Plotly 支持缩放/平移、节点及关系悬停/选中；详情也可用选择框访问，大图使用 st.dialog。NetworkX 只计算布局，不执行中心性或业务推断。
+使用既有requirements.txt。本次环境Python3.11.5、Streamlit1.67.0、Plotly7.2、pandas3.1.1、Neo4j5.26 / Java17；没有新增依赖或改写团队requirements。
 
-## P1 公共框架交付建议
+数据库使用管理员已核验的独立实例启动脚本，确认NEO4J_HOME、NEO4J_CONF和数据位置正确且实例未重复启动。具体本机命令保存在本地迁移说明；团队文档不携带个人安装路径。不用默认端口推断实际连接，不执行reset。
 
-当前入口 app.py 已由 P3 所有，沿用原文件的 apply_theme 调用，无需改动入口业务。P1 的 core/config/requirements 无改动；没有新增运行依赖。
-
-ui/integration/streamlit-config.toml 是官方主题参考，由公共配置维护者审阅后复制/合并到 .streamlit/config.toml。不要覆盖已有 secrets 或个人配置。当前预览可使用 `powershell -File ui/run_preview.ps1`，通过官方 CLI 设置主题，不写共享配置。Python 可通过 -Python 参数指定，默认使用本仓库 .venv 或当前激活环境。
-
-共用组件：apply_theme、page_header、section、metric_row、chart、data_table、empty_state、error_state 保留原签名；assets.py 统一引用已有资源。新页面调用 apply_theme 和 page_header 即可获得品牌导航和叠加页头，业务控件保持原生可交互。
-
-## 页面一、二的设计迁移参考
-
-本次不覆盖 pages/01、pages/02 或 analysis/page_data.py 的业务代码。
-
-| 页面 / 原型位置 | Streamlit 推荐实现与真实数据边界 |
-|---|---|
-| 全景 components/overview-page.tsx：overview-filters | 年份、技术领域、国别使用原生 selectbox / multiselect，必须真正作用于同一份筛选后基础表 |
-| 全景 overview-kpis / trend-layout | st.metric 与 Plotly line，使用 load_table；无可靠申请年保持空状态 |
-| 全景 distribution-tabs | 原生分段选择 + IPC / patent_type / country / efficacy 实际分组；缺字段不借用原型百分比 |
-| 全景 growth-panel | load_result('topic_year') 或 P1 已冻结的增长结果；当前空主题表不伪造趋势 / 增长率 |
-| 全景 主体排名 | 对实际筛选专利及 applicants 连接去重，不复制 v0 企业数 |
-| 主体 components/applicants-page.tsx：applicant-filters | 文本检索真实 applicant_std，筛选上下文显式展示 |
-| 主体 ranking-panel / metric-tabs | load_result('company_metrics') 的 patent_count、cited_count、pagerank、degree、betweenness，前端不重算中心性 |
-| 主体 network-panel | 只用 load_table('cooperation') 的真实边，NetworkX 只布局；选边后查询真实共同申请专利 |
-| 主体 profile-panel / patent-query-results | 由真实主体→专利→主题/IPC 取数或冻结查询提供；没有企业简介时显示未提供 |
-
-company_metrics 当前按整个选定研究数据范围预计算，不含年份维度。年份筛选不能把全样本 PageRank 静默标成该年指标；需要 P1 提供相应范围产物或明确标注指标仍是固定范围。原型中的规模、增长率、PageRank、地点及企业简介均不可直接迁入。
-
-## 验证与限制
-
-运行：
+在仓库根目录激活现有Python环境后启动：
 
 ```powershell
-python -m compileall -q ui pages
-python -m unittest discover -s ui/tests -p "test_*.py" -v
-python -m ui.tests.smoke
-python -m eval.check_contracts
-python -m eval.check_metrics
-# 可选浏览器工具，非运行依赖：Playwright + 已安装 Edge
-python -m ui.tests.browser_check --url http://127.0.0.1:18503
+powershell -File ui/run_preview.ps1 -Python python -Port 18504
 ```
 
-已用 Python 3.11、Streamlit 1.67.0、Plotly 7.2.0、NetworkX 3.6.1 测试。P3 自动化测试覆盖状态去重、失败保留与错误脱敏、12 意图显示、异常/空结果、原图 SHA-256、Schema 箭头、原生导航、历史恢复、新会话、候选确认。候选和部分意图使用界面测试注入的契约响应，不代表 P2 已实现真实业务。
+访问 http://127.0.0.1:18504。启动器使用官方主题参数，不覆盖共享配置；-Python可指定现有解释器。
 
-2026-11-25 实测结果：12 项 P3 单元/组件测试全部通过，现有 eval.check_contracts 与 eval.check_metrics 通过，66 个资源哈希匹配。预览通过本机 Edge + Playwright 验收（1080px 高度）：
+| 验证 | 模式与结果 |
+|---|---|
+| python -m compileall -q ui pages analysis qa | PASS |
+| python -m unittest discover -s ui/tests -p "test_*.py" -v | 全量真实环境61项通过 |
+| python -m unittest discover -s qa/tests -v | 全量26项通过，1项独立样例图测试跳过 |
+| python -m ui.tests.smoke | 样例/mock通过 |
+| python -m eval.check_contracts | 样例/mock通过；全量另用P1校验器34项通过、8项原数据质量说明 |
+| python -m eval.check_metrics | 独立三节点夹具通过，不重算正式网络指标 |
+| 全量只读核查 | 57文件、七表、辅助与预计算来源、全部节点属性及关系端点/权重一致；35项环境检查通过 |
+| A—F真实业务 | 产业、主体、合作、别名、边界及12类真实规则问答通过；两次有限真实模型调用通过 |
+| 浏览器 | 三页在1280/1440/1920宽度通过，无横向溢出；筛选、分页、预填、取消、编辑、真实结果及返回恢复通过 |
 
-| 桌面宽度 | 正文可见宽 / 滚动宽 | 图片缺失 | 选点 / 关系详情 | 缩放平移 / 大图 | 新会话 | JS 错误 |
-|---|---|---|---|---|---|---|
-| 1280 | 1082 / 1082 | 0 | 通过 | 通过 | 通过 | 0 |
-| 1440 | 1222 / 1222 | 0 | 通过 | 通过 | 通过 | 0 |
-| 1920 | 1702 / 1702 | 0 | 通过 | 通过 | 通过 | 0 |
+1920宽度分页数量控件自动点击定位不稳定，使用真实键盘选择并核对页码通过，不宣称自动点击步骤通过。数据库断连、超时、缺字段、模型不可用通过隔离模拟验证，未破坏正式实例。
 
-各宽度均无文档/正文横向溢出，页头保持 118px，输入框的起始位置在图谱底部之后，不遮挡图。示例按钮仅预填，必须显式发送才调用服务。浏览器截图与原始检查 JSON 输出至忽略的 tmp/visual-qa/，不混入业务数据或提交包。
+## 性能、阶段状态与限制
 
-P5 的旧 eval/smoke_test.py 直接运行子页面并寻找旧 text_input/查询按钮，与新原生导航和 chat_input 不兼容。本次按所有权保持 eval/ 不变，提供 ui/integration/p5-smoke-update.patch，P5 可先 git apply --check 再审阅应用；补丁转调 P3 的原生路由冒烟测试。不应将旧测试失败伪报成通过。
+相同全量操作：冷加载约38.7→12.6秒，重复全量页13.2→1.49秒，主体页13.2→1.98秒，合作查询1.20→0.022秒，代表专利2.91→0.527秒；进程峰值约1795→998MiB。这是本机单轮服务端测量，不含浏览器绘图，存在波动。
 
-eval/qa_testset.csv 当前只有表头，真实问答仍待 P2；不具备意图 75% / 事实 85% 的真实业务验收条件。未执行全量 Neo4j/API 评估，不提供虚构准确率。
+优化为批量集合筛选、复用缓存、版本/目录/范围键、pandas3 CoW独立视图，失败指标不留缓存，低版本保留原副本策略。七表与业务结果签名一致。阶段04两项CN国别测试实际为空，不能代表真实国别性能；阶段05改用真实可选值“中国”，69,924件、2015—2023为60,079件，非空图表与导出一致。有效国别聚合单独测量约0.823秒，无有效优化前对照。
 
-### 修改文件与目的
+| 阶段 | 最终状态 |
+|---|---|
+| 00 基线 | PASS；原别名差异在01适配，模型及浏览器在后续实测 |
+| 01 数据、名称、口径 | FIXED：主体去重、合作证据、原始网络指标分口径 |
+| 02 问答闭环 | FIXED；不支持意图明确替代，DEGRADED |
+| 03 页面功能 | FIXED；密集图点击以可靠控件替代，DEGRADED |
+| 04 性能稳定性 | FIXED；结果一致，保留首次加载与视口裁剪说明 |
+| 05 全量验收 | FIXED；核心流程通过，修复真实国别覆盖 |
+| 06 最终交付 | 通用文档替换历史流水；个人记录及原提交本地保留，干净交付保留P2来源 |
 
-- pages/03_智能问答与关联路径.py：改为薄页面入口，保留正式服务边界。
-- ui/theme.py、ui/styles.css、ui/components.py：统一设计与原生导航；保留已有组件签名。
-- ui/assets.py、ui/assets/：原素材引用与校验清单。
-- ui/qa_state.py：单轮会话状态、请求去重、错误与候选确认文本。
-- ui/qa_visuals.py：字段适配、按意图绘图、Schema 校验、图谱布局与箭头。
-- ui/qa_workbench.py：三栏页面、历史、输入、图表、溯源与大图。
-- ui/run_preview.ps1、ui/integration/：主题预览与公共配置/P5 测试迁移材料。
-- ui/tests/：P3 自有单元、组件与可选真实浏览器检查。
-- docs/ui_spec.md：本迁移计划、设计规范、交付建议、验收与限制，避免重复报告。
+仍有限制：P1原始缺失字段和不完整年份保留提示；未经授权明细批量下载SKIPPED。旧P5 `eval.smoke_test` 仍因独立子页入口及旧控件假设失败，原脚本未修改；ui/integration/p5-smoke-update.patch已通过apply检查，待P5审阅。独立eval/qa_testset.csv仅表头，准确率验收SKIPPED；12类工程回归不等于独立准确率。没有尚未处理的P3核心BLOCKED项。
 
-## P1 数据接入更新（2026-11-25）
-
-接入 origin/tianguo-P1 的 940c3eb，保留 P1 的数据、抽取脚本与交接文档，P3 保留公共接口及前端实现。远端分支实际名称含连字符。
-
-实测样例：481 件专利、530 条申请人记录、1,804 条引用；前端按非外观设计得到 407 件技术类专利。三个页面均通过 AppTest 原生路由启动检查。首页新增年份/国别/领域统一筛选、技术分母说明、类型/国别/IPC/功效切换和主题表；主体页新增检索、真实申请量排名、共同申请边与网络下钻。
-
-旧 company_metrics 的 source_rows 与新数据不符，前端拒绝复用，暂展示当前七表的真实申请量。网络中心性仍由 P1 重算交付，前端不补算。辅助别名合并结果尚未接入统一加载契约，当前明确标为未做展示层合并。问答服务仍由 P2 实现，不能把 P1 数据上传当作真实问答完成。
-
-本地采用稀疏检出，排除大体积重复交付目录、representatives 和 raw_sample_1000；这些文件仍保留在 P1 提交与合并树中。全量 processed 表不自动复制到本机，当前验证为真实开发子集，不宣称全量/Neo4j连通验收。
-
-## P3 功能完善与集成验收（2026-11-26）
-
-### 功能与统计范围
-
-全景页保留三个板块：产业概况、技术发展与分布、专利证据。年份/公开国别/领域统一筛选并支持重置；主题图展示技术类范围内前 20 个规则主题，主题选择联动证据。专利标题/编号支持字面检索，每页 10/20/50 件；详情直接展示七表中的标题、摘要、日期、申请主体、IPC、主题，缺失显示“未提供”。
-
-主体页保留三个板块：主体发现与排名、技术布局、共同申请证据。五个指标均提供中文名称、含义和可用状态，缺失或过期网络指标不会退回申请量。主体选择器最多 200 个选项，可检索缩小范围；排名仍使用所有匹配主体。技术布局展示实际主体类型、申请量、2010—2023 年趋势、技术类 IPC/主题/领域及分页专利。未知企业简介、市场信息和综合评分不补造。
-
-共同申请仅展示所选主体权重最高的前 30 条边（至多 31 个节点），不是完整网络。合作主体选择器定位节点及对应边，可切换其技术布局。证据由两个契约主体各自专利集合取交集，再与当前可见专利相交；同时展示契约边权和可核验件数，不一致明确告警。共同申请不描述为引用、商业合作或供应链依赖；主体名未经确认不合并。
-
-主体、主题、专利和共同申请均能跳转既有问答工作台并预填问题；只有用户显式发送才调用冻结的 answer(question, mode="auto")。原三栏、历史、溯源、异常重试和新会话保持复用，本地历史不代表后端多轮理解。数据样例/全量与问答模拟/正式入口分别提示，正式入口的执行模式以后端返回为准。
-
-所有普通统计基于当前研究范围的真实表。全部专利与非外观设计技术类分母分别标注；公开国别不是申请人国别，规则主题不是标准分类；年度趋势只采用 2010—2023，2024—2025 不完整。481 件样例不能推断全量产业规模。
-
-### 加载、缓存与预计算接口
-
-core.data_loader 当前没有缓存，本次不修改它；analysis/page_data.py 在适配层统一取得七表快照，使用 st.cache_data(ttl=60, max_entries=2)。键包含 USE_SAMPLE、表/结果目录及七表、清单、两个结果文件的纳秒修改时间与大小，模式、路径或文件更新即形成不同键；不回退到另一模式。全景单次运行只调用一次 overview_data，选择器选项直接使用快照。所有表内容仍通过 load_table/load_result 读取，不绕过公共规则加载 P1 辅助文件。
-
-company_metrics、topic_year 保留 load_result 入口。除公共加载器已有的 scope、列、结果行数、结果 SHA-256 校验外，适配层检查 source_rows 覆盖当前七表，并要求清单增加 source_table_sha256（七表名到内容签名的映射），避免同样行数但内容不同的旧结果混入。签名算法为对 load_table 返回的表按契约列序及原行序执行以下表达式；P1 生成清单应在最终写出并重新加载七表后计算，不改动冻结七表结构：
-
-```python
-hashlib.sha256(table.to_json(
-    orient="split", index=False, date_format="iso", force_ascii=False
-).encode("utf-8")).hexdigest()
-```
-
-该新字段是 P3 的接入元数据要求，尚非团队已冻结契约；缺失时安全显示不可用，需与 P1 确认。company_metrics 主体名还须属于契约 applicant_std，别名版指标必须先提供稳定映射接口。有效网络指标明确为固定研究范围，不能冒充页面筛选后的指标。当前旧产物来源行数不匹配，未显示其网络指标或预计算主题趋势；实时申请量与基础分组仍可用。
-
-### 实测与待联调
-
-本次新增 ui/evidence.py 共用证据与跳转组件、ui/tests/test_integration.py 集成检查；修改仅限 analysis/page_data.py、页面 01/02、ui/qa_workbench.py 及本说明，未修改 core、qa、数据、指标算法或 eval。七表读取计数测试证明同一缓存版本连续两次调用只读取七次；全量目录缺失会报缺失，不复用样例。
-
-2026-11-26 执行结果：18 项前端单元/组件/集成测试通过；ui.tests.smoke 通过（三个页面原生路由）；eval.check_contracts 和 eval.check_metrics 通过。默认完整年份范围保留年份缺失专利（481 件全部、407 件技术类）；主动缩小年份范围才排除缺失年记录。新增同规模数据内容变化导致预计算失效的检查。覆盖共同申请交集、标题/编号检索、分页不重叠、真实详情、筛选重置、主体布局基础集合、不可用指标不替代、跨页预填零服务调用，以及既有问答异常、空结果、历史、新会话和 12 意图渲染。测试中的后端注入响应仅验证展示，不表示真实问答已实现。
-
-待联调事项：
-
-- P1：按当前研究范围重新交付两个预计算产物及有效清单；确认上述源表内容签名、中心性归一化/近似口径、别名与企业级辅助表的稳定加载接口。当前不直接读取辅助 CSV/Parquet、不自行实体消解或计算中心性。
-- P2：实现冻结服务的真实查询及意图覆盖，明确返回执行模式和证据字段；当前真实构建仍是桩，模拟案例不能计作业务准确率。
-- P5：审阅既有 ui/integration/p5-smoke-update.patch 迁移旧冒烟入口，并补充目前仅表头的 qa_testset.csv 后组织真实问答验收。保持 eval 所有权，未替换旧断言掩盖未交付能力。
-
-本机没有完整 processed 数据，未执行十万件全量性能、全量 Neo4j 或真实问答准确率评估。保留原稀疏检出、用户未跟踪文件和远端其他分支；仅正常提交/推送 p3-frontend，不合并 main/develop。
-
-本地启动（仓库根目录，使用项目依赖环境）：
-
-```powershell
-powershell -File ui/run_preview.ps1 -Python '..\kg_system-team-setup\.venv\Scripts\python.exe' -Port 18504
-```
-
-浏览器打开 http://127.0.0.1:18504；新环境请先按 docs/run.md 安装依赖与配置模式。
-
-浏览器补充验收：全景与主体页分别在 1280/1440/1920px 下通过，共六组，正文可见宽/滚动宽分别为 1082/1082、1222/1222、1702/1702，无横向溢出、页面异常或 JS 错误；截图保存在忽略目录 tmp/discovery-qa/。浏览器脚本初次使用了包含序号的标题定位，而公共标题将序号单独渲染，导致定位超时；已按实际标题修正并通过，未修改业务断言。
-
-既有 ui.tests.browser_check 在相同三种宽度复测全部通过：素材无缺失，图谱选点/关系详情、缩放平移、大图、新会话均正常，JS 错误为 0。compileall 与 git diff --check 通过；旧 P5 冒烟未作为兼容通过项，真实业务/全量评估仍未执行。
+建议维护者审核后将p3-frontend合入develop；避免重复挑选已包含的P2 `68e947b`、`e04cd56`。P1数据继续固定独立快照，升级先核对来源和统计口径，不自动替换数据库。当前不创建或合并main/develop PR。

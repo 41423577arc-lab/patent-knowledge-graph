@@ -11,7 +11,7 @@ page_header("新能源汽车产业技术情报平台", "P1 数据与指标 · P2
 if config.QA_BACKEND == "mock":
     st.warning("问答处于演示桩模式：假数据仅供页面开发，不是实际分析结论。")
 else:
-    st.info("问答使用真实服务入口；当前真实问答实现仍待 P2 完成。")
+    st.info("已接入 P2 真实问答服务。规则查询需要匹配当前数据范围的 Neo4j；大模型模式还需配置模型服务，实际执行模式以回答标记为准。")
 st.write("可用数据表：", ", ".join(available_tables()) or "尚未生成，请参照 docs/run.md")
 st.page_link("pages/01_产业技术全景.py", label="产业技术全景")
 st.page_link("pages/02_创新主体与合作网络.py", label="创新主体与合作网络")

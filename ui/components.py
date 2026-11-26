@@ -56,6 +56,17 @@ def error_state(message: str) -> None:
     st.error(message)
 
 
+def data_problem(exc):
+    if isinstance(exc,FileNotFoundError):message="当前研究数据文件缺失，请检查 DATA_DIR 与固定数据目录。"
+    elif isinstance(exc,PermissionError):message="当前研究数据文件无法读取，请检查文件访问权限。"
+    elif isinstance(exc,OSError):message="当前研究数据文件读取失败，请检查磁盘或文件是否可用。"
+    else:message="当前数据结构或版本校验未通过，请核对固定来源、字段与指标清单。"
+    st.error(message)
+    st.caption("当前查询未完成。侧栏导航仍可使用；修复数据后可重新读取。")
+    from analysis.page_data import _clear_snapshot
+    st.button("重新读取当前数据",on_click=_clear_snapshot,key="ev_retry_data")
+
+
 def path_graph(graph: dict) -> None:
     """NetworkX is used for layout only; metrics are precomputed by P1."""
     if not graph["nodes"]:

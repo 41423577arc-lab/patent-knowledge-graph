@@ -2,6 +2,8 @@
 from pathlib import Path
 
 import plotly.graph_objects as go
+import plotly.express as px
+import plotly.io as pio
 import streamlit as st
 
 from ui.assets import asset_uri
@@ -18,6 +20,8 @@ PLOTLY_TEMPLATE = go.layout.Template(layout={
     "hoverlabel": {"bgcolor": "#10334a", "font_color": COLORS["text"]},
     "margin": {"l": 20, "r": 20, "t": 35, "b": 30},
 })
+pio.templates["ev_intelligence"]=PLOTLY_TEMPLATE
+px.defaults.template="ev_intelligence"
 
 
 def apply_theme(page_title: str = "EV Intelligence") -> None:

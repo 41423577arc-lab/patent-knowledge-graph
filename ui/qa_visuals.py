@@ -150,13 +150,20 @@ def graph_figure(graph: dict, *, height: int = 370) -> tuple[go.Figure | None, l
     nodes, edges, notes = validated_graph(graph)
     if not nodes:
         return None, notes
+    original_nodes,original_edges=len(nodes),len(edges)
+    nodes=nodes[:128]
+    visible={node["id"] for node in nodes}
+    indexed_edges=[(i,e) for i,e in enumerate(edges) if e["source"] in visible and e["target"] in visible][:200]
+    edges=[e for _,e in indexed_edges]
+    if len(nodes)<original_nodes or len(edges)<original_edges:
+        notes.append(f"为保持交互流畅，仅绘原始返回 {original_nodes} 个节点中的 {len(nodes)} 个、{original_edges} 条关系中的 {len(edges)} 条；完整证据保留在节点/关系选择、明细与原始返回中。绘图上限为128节点、200关系。")
     network = nx.Graph()
     network.add_nodes_from(n["id"] for n in nodes)
     network.add_edges_from((edge["source"], edge["target"]) for edge in edges)
     positions = nx.spring_layout(network, seed=42, k=1.5)
     figure = go.Figure()
     edge_x, edge_y, label_x, label_y, labels, edge_meta = [], [], [], [], [], []
-    for index, edge in enumerate(edges):
+    for index, edge in indexed_edges:
         a, b = positions[edge["source"]], positions[edge["target"]]
         edge_x.extend([a[0], b[0], None]); edge_y.extend([a[1], b[1], None])
         label_x.append((a[0] + b[0]) / 2); label_y.append((a[1] + b[1]) / 2)

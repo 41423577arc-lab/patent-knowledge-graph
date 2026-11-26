@@ -8,16 +8,11 @@ from ui.assets import asset_uri, heading_html, icon_html
 from ui.qa_state import STATE_KEY, active_turn, clarified_question, initialize, new_conversation, process_pending, queue_question
 from ui.qa_visuals import FRIENDLY, INTENTS, graph_figure, metric_cards, numeric_metrics, build_statistic, validated_graph
 from ui.theme import PLOTLY_TEMPLATE, apply_theme
+from ui.questions import OPERATIONS,build_question,UnsupportedTemplate,split_compound
+from ui.navigation import return_link
+from ui.qa_status import response_status,LABELS
 
 MOCK_EXAMPLES = ["演示：创新主体申请量排名", "演示：主体 A 的代表性专利", "演示：主体 A 的依赖暴露度"]
-QUESTIONS = [
-    "专利申请量最高的创新主体有哪些？", "哪些创新主体在引用网络中影响力高？",
-    "某创新主体布局了哪些 IPC 技术领域？", "某创新主体与哪些主体共同申请过专利？",
-    "某技术主题的年度申请量如何变化？", "哪些技术主题增长较快？",
-    "某创新主体涉及哪些技术主题和领域？", "某创新主体的合作主体各自布局什么技术？",
-    "某创新主体引用了哪些主体的专利？", "某创新主体的技术引用是否集中于少数外部主体？",
-    "某创新主体的代表性专利有哪些？", "某技术主题的主要创新主体是谁？",
-]
 
 
 def _state():
@@ -25,8 +20,23 @@ def _state():
 
 
 def _queue(question: str, parent_id=None):
-    queue_question(_state(), question, st.session_state.get("ev_qa_mode", "auto"), config.QA_BACKEND,
-                   "sample" if config.USE_SAMPLE else "full", parent_id=parent_id)
+    state=_state()
+    alternatives=split_compound(question)
+    if alternatives:
+        state["compose_suggestions"]=alternatives
+        state["draft"]=question
+        state["restore_compose_draft"]=True
+        return
+    state["compose_suggestions"]=[]
+    if queue_question(state, question, st.session_state.get("ev_qa_mode", "auto"), config.QA_BACKEND,
+                      "sample" if config.USE_SAMPLE else "full", parent_id=parent_id):
+        context=state.pop("draft_context",None)
+        origin=state.pop("draft_origin",None)
+        if parent_id:
+            context=next((t.get("source_context") for t in state["turns"] if t["id"]==parent_id),context)
+            origin=next((t.get("source_origin") for t in state["turns"] if t["id"]==parent_id),origin)
+        state["pending"]["source_context"]=context
+        state["pending"]["source_origin"]=origin
 
 
 def _chat_submitted():
@@ -35,11 +45,18 @@ def _chat_submitted():
 
 def _fill_draft(text: str):
     _state()["draft"] = text
+    _state()["draft_context"] = None
+    _state()["draft_origin"] = None
+    _state()["compose_suggestions"]=[]
+    _state()["restore_compose_draft"]=False
     st.session_state["ev_qa_input"] = text
 
 
 def _new():
     new_conversation(_state())
+    _state()["draft_context"]=None
+    _state()["draft_origin"]=None
+    _state()["compose_suggestions"]=[]
     st.session_state["ev_qa_input"] = ""
 
 
@@ -138,6 +155,11 @@ def _graph_view(turn: dict, state: dict):
         if effective:
             detail = next((node for node in nodes if node["id"] == effective[1]), {}) if effective[0] == "node" else edges[int(effective[1])]
             st.json(detail, expanded=True)
+            if effective[0]=="node" and detail.get("type")=="Patent" and turn["backend"]!="mock":
+                if st.button("定位该专利的本地证据",key=f'ev_locate_{turn["id"]}_{detail["id"]}'):
+                    from ui.evidence import locate_patent
+                    try:locate_patent(detail["label"])
+                    except (OSError,ValueError,KeyError):st.info("当前本地证据暂不可读；本次后端返回和来源仍保留。")
     _caption("滚轮缩放，拖动平移；悬停查看类型和关系，点击后查看详情。CITES 是引用，不是合作。")
 
 
@@ -221,6 +243,10 @@ def _answer_panel(turn: dict, state: dict):
     st.html(f'<span class="ev-intent">{escape(title)} · {escape(answer["intent"] or "意图未匹配")}</span>')
     if turn["backend"] == "mock":
         st.warning("演示假数据 · 本条结果来自问答桩，不能视为实时或真实业务结论。")
+    status=response_status(answer)
+    if turn["backend"]!="mock" and turn.get("reported_mode")=="rule":
+        if turn["mode"]=="llm": st.info("本次实际使用规则模式：模型未完成或已降级，后端未提供具体原因。以下结果仍依据真实检索。")
+        elif turn["mode"]=="auto": st.caption("自动选择实际采用规则模式；这不一定表示模型服务故障。")
     if answer["ok"]:
         st.markdown(answer["conclusion"] or "后端未提供文字结论，请查看实际返回记录。")
         if answer["intent"] == "Q_INFLUENTIAL_APPLICANTS":
@@ -239,7 +265,12 @@ def _answer_panel(turn: dict, state: dict):
             st.caption("专利引用是知识关联的代理指标，不等同于采购、供应链依赖或商业风险。")
         _result_views(turn, state)
     else:
-        st.error(answer["error"] or "本次查询没有成功返回答案。")
+        message=LABELS[status]+"："+(answer["error"] or "本次查询没有成功返回答案。")
+        if status=="SYSTEM_ERROR": st.error(message)
+        elif status in {"NEED_CLARIFICATION","DATA_UNAVAILABLE"}: st.info(message)
+        else: st.warning(message)
+        if answer["conclusion"]:st.markdown(answer["conclusion"])
+        if answer["data"] or answer["graph"]["nodes"]:_result_views(turn,state)
         st.button("重新尝试此问题", key=f'ev_retry_{turn["id"]}', on_click=_queue,
                   args=(turn["question"], turn["id"]), disabled=state["busy"])
         st.button("放回输入框编辑", key=f'ev_edit_{turn["id"]}', on_click=_fill_draft, args=(turn["question"],), disabled=state["busy"])
@@ -253,6 +284,15 @@ def _answer_panel(turn: dict, state: dict):
 def _sources(turn: dict | None, state: dict):
     with st.container(border=True, key="ev_qa_source"):
         _panel_heading("结果溯源", "citation", "只读")
+        if turn and turn.get("source_context"):
+            st.info("来源页面上下文："+turn["source_context"])
+        st.caption("P2 全局榜单/中心性按原始主体；P3 可选确认别名合并。详情须对照原始成员，合作表累加权重须与去重证据区分；以本次返回的来源为准。")
+        if turn:
+            resolved=turn["answer"]["entities"]["resolved"]
+            names=[v["name"] for v in resolved.values() if isinstance(v,dict) and isinstance(v.get("name"),str)]
+            if names: st.caption("本次后端解析实体："+"、".join(names))
+            sources=sorted({str(row["cooperation_source"]) for row in turn["answer"]["data"] if row.get("cooperation_source")})
+            if sources: st.caption("本次合作统计来源："+"、".join(sources))
         st.selectbox("回答方式", ["auto", "rule", "llm"], format_func=lambda value: {"auto": "自动选择", "rule": "规则模式", "llm": "大模型模式"}[value], key="ev_qa_mode", disabled=state["busy"])
         if turn:
             answer = turn["answer"]
@@ -285,9 +325,20 @@ def _sources(turn: dict | None, state: dict):
                 st.button(text, key=f"ev_example_{i}", on_click=_fill_draft, args=(text,), width="stretch", disabled=state["busy"])
             _caption("当前桩只支持上面三例；其余意图是问题模板，不能据此宣称后端已实现。")
         with st.expander("查看 12 类问题模板"):
-            for (intent, (title, group, _)), question in zip(INTENTS.items(), QUESTIONS):
+            st.caption("填写数据中的主体/主题名称，或从前两页带入。按钮只预填，每次提交一个意图。")
+            subject=st.text_input("模板主体名称",key="ev_template_applicant")
+            topic=st.text_input("模板技术主题",key="ev_template_topic")
+            for operation,(intent,_) in OPERATIONS.items():
+                title,group,_=INTENTS[intent]
                 st.caption(f"{group} · {title}")
-                st.button(question, key=f"ev_template_{intent}", on_click=_fill_draft, args=(question,), width="stretch", disabled=state["busy"])
+                name=topic if operation in {"trend","topic_applicants"} else subject
+                try:
+                    question=build_question(operation,name)
+                except UnsupportedTemplate as exc:
+                    st.button(title,key=f"ev_template_{intent}",disabled=True,width="stretch")
+                    st.caption(str(exc))
+                else:
+                    st.button(question,key=f"ev_template_{intent}",on_click=_fill_draft,args=(question,),width="stretch",disabled=state["busy"])
 
 
 def render():
@@ -296,8 +347,22 @@ def render():
     handoff = st.session_state.pop("ev_qa_prefill", None)
     if handoff:
         _fill_draft(handoff)
+        state["draft_context"]=st.session_state.pop("ev_qa_context",None)
+        state["draft_origin"]=st.session_state.pop("ev_qa_origin",None)
+        for slot,value in st.session_state.pop("ev_qa_template_entities",{}).items():
+            st.session_state[f"ev_template_{slot}"]=value
     st.html(heading_html("智能问答与关联路径", "以自然语言提出完整问题，查看可解释的答案、实体关联与路径。"))
     _mode_bar()
+    if state.get("compose_suggestions"):
+        st.info("当前输入包含技术布局和代表性专利两个操作。请选择一个问题预填，再手动发送；尚未调用问答服务。")
+        for i,question in enumerate(state["compose_suggestions"]):
+            st.button(question,key=f"ev_split_{i}",on_click=_fill_draft,args=(question,),width="stretch")
+    if state.pop("restore_compose_draft",False):st.session_state["ev_qa_input"]=state["draft"]
+    if state.get("draft_context"):
+        st.info(state["draft_context"]+" 请检查输入问题后显式发送；页面上下文仅用于展示，不会作为隐含参数传给后端。")
+    current=active_turn(state)
+    origin=state.get("draft_origin") or (current.get("source_origin") if current else None) or st.session_state.get("ev_last_origin")
+    return_link(origin,key="ev_return_source")
     history, center, source = st.columns([19, 58, 23], gap="small")
     turn = active_turn(state)
     with history:
@@ -315,7 +380,7 @@ def render():
                         st.html(f'<div class="ev-welcome"><img src="{asset_uri("icons/svg/spark_active.svg")}" alt=""><h2>从一个问题开始探索</h2><p>查询技术布局、创新主体与技术引用路径。<br>每次提交一个完整问题，返回内容均有迹可循。</p></div>')
                         _caption("当前接口为单轮问答。左侧历史用于查阅，不会自动传入问答引擎作为上下文。")
             with st.container(key="ev_qa_composer"):
-                submission = st.chat_input("输入完整产业技术问题…", key="ev_qa_input", max_chars=4000,
+                submission = st.chat_input("输入完整产业技术问题…", key="ev_qa_input", max_chars=1000,
                                            disabled=state["busy"], on_submit=_chat_submitted)
                 st.caption("Enter 发送 · Shift+Enter 换行 · 请使用完整问题")
             if submission and not state["pending"]:

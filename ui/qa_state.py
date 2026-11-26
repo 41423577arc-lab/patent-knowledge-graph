@@ -3,6 +3,7 @@ from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4
 from zoneinfo import ZoneInfo
+from ui.qa_status import STATUSES
 
 STATE_KEY = "ev_qa"
 FIELDS = {"ok", "intent", "slots", "entities", "data", "graph", "conclusion", "cypher", "mode", "error", "suggestions"}
@@ -30,7 +31,10 @@ def normalize_answer(raw) -> dict:
                  and (raw["error"] is None or isinstance(raw["error"], str)))
     if not valid:
         return failure("问答服务返回的结构不完整。请联系问答服务负责人核对接口；页面没有生成替代答案。")
-    return deepcopy({key: raw[key] for key in FIELDS})
+    result=deepcopy({key: raw[key] for key in FIELDS})
+    for key in ["status","status_code"]:
+        if isinstance(raw.get(key),str) and raw[key] in STATUSES:result[key]=raw[key]
+    return result
 
 
 def initialize(session) -> dict:
@@ -91,7 +95,7 @@ def new_conversation(state: dict) -> None:
     if state["busy"]:
         return
     state.update({"turns": [], "active_id": None, "pending": None, "draft": "",
-                  "views": {}, "candidates": {}, "inspections": {}, "plot_events": {}})
+                  "views": {}, "candidates": {}, "inspections": {}, "plot_events": {},"draft_origin":None})
 
 
 def clarified_question(turn: dict, candidate: dict) -> str:
