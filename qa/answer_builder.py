@@ -10,7 +10,7 @@ from numbers import Integral, Real
 import pandas as pd
 
 from core import config
-from qa import auxiliary, cache, dependency, intents as I, llm_client
+from qa import auxiliary, cache, dependency, intents as I, llm_client, web_search
 from qa.entity_linker import Catalog
 from qa.retrieval import QueryUnavailable, Retrieval, ScopeMismatch
 
@@ -164,6 +164,26 @@ def answer(question: str, mode: str = "auto") -> dict:
         result["error"] = "问题最多 1000 个字符，请保留一个问题。"
         return result
     issue = I.request_issue(question)
+    if web_search.enabled():
+        web_route = web_search.route(question, issue)
+        if web_route == "clarify":
+            result["error"] = "请明确要查询的企业、产品或行业范围，再查询公开信息。"
+            return _finish(result, Status.NEED_CLARIFICATION, mode)
+        if web_route == "clarify_market":
+            result.update(error=f"{issue[1]} 若查询公开排名，请明确统计地区及时间。",
+                          suggestions=list(I.RANKING_SUGGESTIONS))
+            return _finish(result, Status.NEED_CLARIFICATION, mode)
+        if web_route == "web":
+            if mode == "rule":
+                result["error"] = "此问题需要查询公开互联网。规则模式只查询本地数据，请切换至自动或大模型模式。"
+                return _finish(result, Status.OUT_OF_SCOPE, mode)
+            try:
+                result.update(ok=True, error=None, suggestions=[], mode="llm",
+                              conclusion=web_search.search(question).conclusion)
+            except web_search.SearchUnavailable as exc:
+                result["error"] = str(exc)
+                return _finish(result, Status.SYSTEM_ERROR, mode)
+            return _finish(result, Status.SUCCESS, mode)
     if issue:
         reason, message = issue
         result.update(error=message, suggestions=list(I.RANKING_SUGGESTIONS))
