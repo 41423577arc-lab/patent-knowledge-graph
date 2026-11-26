@@ -32,14 +32,6 @@
   },
   "cooperation_applicable": 9,
   "cooperation_note": "100 条中仅多申请人专利存在共同申请对；单申请人行不进入合作分母。",
-  "citation_edges": {
-    "predicted": 418,
-    "true": 418,
-    "tp": 418,
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1": 1.0
-  },
   "topic_non_design": {
     "n": 82,
     "accuracy": 0.6037,
@@ -50,5 +42,31 @@
     },
     "design_n": 18
   },
-  "cooperation_accuracy_applicable": 1.0
+  "cooperation_accuracy_applicable": 1.0,
+  "citation_consistency": {
+    "predicted": 418,
+    "true": 418,
+    "matched": 418,
+    "rate": 1.0,
+    "note": "引用是结构化字段，只做一致性检查，不计算 P/R/F1。"
+  },
+  "topic_prf": {
+    "micro": {
+      "tp": 66,
+      "fp": 42,
+      "fn": 41,
+      "precision": 0.6111,
+      "recall": 0.6168,
+      "f1": 0.614
+    },
+    "domain_micro": {
+      "tp": 62,
+      "fp": 31,
+      "fn": 29,
+      "precision": 0.6667,
+      "recall": 0.6813,
+      "f1": 0.6739
+    },
+    "note": "技术主题按精确匹配；reference_topics 见 manual_sample_100_topic_eval.csv；领域由 topic_quality.csv 映射。"
+  }
 }

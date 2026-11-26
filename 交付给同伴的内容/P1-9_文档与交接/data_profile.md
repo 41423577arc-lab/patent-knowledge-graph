@@ -210,5 +210,5 @@
 - 人工抽样：`manual_sample_100.csv` 100 条，类型 发明授权 40、实用新型 23、发明申请 19、外观设计 18；标签已填，结果见 `manual_sample_100.md`。
 - 预计算指标：`company_metrics` 样例 366 家、全量 27,557 家；`topic_year` 样例 295 行、全量 1,293 行；两份 `metrics_manifest.json` 分别标 `scope=sample/full`，`load_result` 校验行数与 SHA-256。
 - 16 批次：`source_files` 行数见 `data_quality.json`；1,008 行样本显示 14 个批次全为“授权”、2 个批次全为“驳回”，说明批次按法律状态分层导出，不是随机全量。
-- 限制：别名不是完整实体消解；企业级引用是聚合不是精确边；主题宽泛词未重跑词典；100 条抽样待人工 P/R/F1。
+- 限制：别名不是完整实体消解；企业级引用是聚合不是精确边；主题宽泛词未重跑词典；100 条抽样已完成，主题 P/R/F1=61.11%/61.68%/61.40%，领域级 F1=67.39%；引用只做一致性检查。
 - 输出：`data/results/scale.json`、`data_quality.json`、`company_alias.csv`、`cooperation_merged.parquet`、`company_patent_counts.csv`、`company_citation_pairs.parquet`、`manual_sample_100.csv`、`topic_quality.csv`；副本在 `交付给同伴的内容/P1-8_质量与别名/`。

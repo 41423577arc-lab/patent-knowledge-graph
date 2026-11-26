@@ -65,6 +65,7 @@ rows = run_query("MATCH (p:Patent) RETURN count(p) AS n")
 | `company_citation_summary.json` | — | H1 覆盖、Top 主体对 |
 | `manual_sample_100.csv` | 100 行 | 人工抽样核对结果；标签已填 |
 | `manual_sample_100.md` | — | 抽样、标注结果与 P/R/F1 说明 |
+| `manual_sample_100_topic_eval.csv` | 100 行 | 主题预测/参考集合、TP/FP/FN 与逐条 P/R/F1 |
 | `topic_quality.csv` | 50 主题 | 主题计数、`（未细分）` 标记 |
 | `company_metrics.parquet` | 样例 366 / 全量 27,557 行 | P2/P3 预计算企业指标；`load_result` 读取 |
 | `topic_year.parquet` | 样例 295 / 全量 1,293 行 | 主题×年度计数；P2 页面一、P3 趋势 |
@@ -123,7 +124,7 @@ rows = run_query("MATCH (p:Patent) RETURN count(p) AS n")
 
 - 结构校验：`data/results/contract_check.json`，34/34 通过；8 个数据缺失警告。
 - 规模/质量：`data/results/scale.json`、`data_quality.json`。
-- 抽样：`manual_sample_100.csv` 100 条，标签列 `label_*` 已填；按 `manual_sample_100.md` 直接引用准确率与 P/R/F1 结果，不重复计算。
+- 抽样：`manual_sample_100.csv` 100 条，标签列 `label_*` 已填；直接采用 `manual_sample_100.md` 的准确率与主题 P/R/F1 结果，不重复计算。
 - 别名：`company_alias.csv` + `alias_summary.json`；H1：`company_citation_pairs.parquet` + `company_citation_summary.json`。
 - 主题：`topic_quality.csv`；`（未细分）` 单列。
 - 一致性：`eval.check_contracts`、`eval.smoke_test` 均可复跑。

@@ -411,7 +411,7 @@ def extraction_fusion():
 
 
 def eval_results():
-    W, H = 1800, 760
+    W, H = 1800, 800
     image = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     text(draw, (60, 36), "100 条人工核对结果", 34, INK, bold=True)
@@ -421,7 +421,7 @@ def eval_results():
         ("申请人", 1.0, "100%"),
         ("IPC", 1.0, "100%"),
         ("技术功效", 1.0, "100%"),
-        ("引用", 1.0, "100%"),
+        ("引用（一致性）", 1.0, "100%"),
         ("合作（n=9）", 1.0, "100%"),
         ("技术主题", 0.675, "67.5%"),
     ]
@@ -454,13 +454,19 @@ def eval_results():
          "主要问题：兜底过粗、宽泛词误命中、\n空主题漏检；见 notes 列。",
          21, MUTED, spacing=7)
     text(draw, (1060, 500),
-         "引用边：418 / 418，P = R = F1 = 1.00",
+         "主题 P/R/F1（micro）= 61.1 / 61.7 / 61.4",
          22, GREEN, bold=True)
-    text(draw, (1060, 542),
-         "合作仅 9 条多申请人专利进入分母；\n91 条单申请人无共同申请对。",
-         21, MUTED, spacing=7)
+    text(draw, (1060, 540),
+         "领域 P/R/F1（micro）= 66.7 / 68.1 / 67.4",
+         22, GREEN, bold=True)
+    text(draw, (1060, 586),
+         "引用 418/418 一致；结构化字段\n只做一致性检查，不计算 P/R/F1。",
+         20, MUTED, spacing=6)
+    text(draw, (1060, 650),
+         "合作：9 条多申请人全部覆盖；\n91 条单申请人无共同申请对。",
+         20, MUTED, spacing=6)
 
-    text(draw, (60, 680),
+    text(draw, (60, 728),
          "结论：结构化字段抽样未发现错误；主题规则需继续补充词典与负向规则。",
          23, MUTED)
     save_pair(image, "req4_eval_results")
@@ -487,8 +493,8 @@ def eval_framework():
         ("IPC", "主 IPC 与原文一致", "Accuracy"),
         ("技术主题", "过匹配 / 漏匹配 / 兜底是否合理", "P / R / F1"),
         ("技术功效", "三级功效是否对应原文", "Accuracy"),
-        ("引用", "引用方向与数量是否与原文一致", "P / R / F1"),
-        ("合作", "共同申请人配对是否正确", "P / R / F1"),
+        ("引用", "引用方向与数量是否与原文一致", "一致率"),
+        ("合作", "共同申请人配对是否正确", "覆盖率"),
     ]
     y = table_y + row_h
     for i, (obj, rule, metric) in enumerate(rows):
@@ -521,7 +527,7 @@ def eval_framework():
          "标注已完成：6 个 label_* 列已填；结果见 req4_eval_results.png。",
          24, AMBER, bold=True)
     text(draw, (60, 728),
-         "Accuracy =（1×正确 + 0.5×部分）/ 已核对；关系类按边计 P/R/F1。",
+         "Accuracy =（1×正确 + 0.5×部分）/ 已核对；主题按边计 P/R/F1；引用/合作做一致/覆盖检查。",
          22, MUTED)
     save_pair(image, "req4_eval_framework")
 
