@@ -472,6 +472,73 @@ def eval_results():
     save_pair(image, "req4_eval_results")
 
 
+def eval_results_200():
+    W, H = 1800, 800
+    image = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    text(draw, (80, 48), "技术主题抽取结果（200 条抽检）", 34, INK, bold=True)
+    text(draw, (1280, 54), "200 条独立随机样本", 23, MUTED)
+
+    cards = [
+        ("Precision", "71.43%", GREEN),
+        ("Recall", "63.88%", BLUE),
+        ("F1", "67.44%", AMBER),
+    ]
+    for i, (label, value, color) in enumerate(cards):
+        x = 80 + i * 560
+        rounded(draw, (x, 170, x + 480, 430), fill=CARD2, outline=color, radius=20, width=3)
+        text(draw, (x + 32, 200), label, 28, MUTED)
+        text(draw, (x + 32, 255), value, 72, color, bold=True)
+        text(draw, (x + 32, 360), "主题级", 24, MUTED)
+
+    rounded(draw, (80, 500, 1720, 650), fill=CARD, outline=BORDER, radius=18)
+    text(draw, (110, 520), "领域级 F1", 28, MUTED)
+    text(draw, (110, 560), "72.93%", 52, GREEN, bold=True)
+    bar(draw, 520, 565, 1090, 34, 0.7293, color=GREEN)
+    text(draw, (1630, 565), "72.93%", 24, GREEN, bold=True)
+
+    text(draw, (80, 700),
+         "主要误差：兜底主题过粗、宽泛词误命中、细粒度主题漏检。",
+         24, MUTED)
+    save_pair(image, "req4_eval_results")
+
+
+def eval_results_200_bar():
+    W, H = 1800, 800
+    image = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    text(draw, (80, 48), "技术主题标注分布（200 条抽检）", 34, INK, bold=True)
+    text(draw, (1320, 54), "200 条随机抽检", 23, MUTED)
+
+    x0, y0, width, height = 80, 170, 1640, 96
+    parts = [(117, GREEN, "正确 117"), (42, AMBER, "部分 42"), (41, RED, "错误 41")]
+    x = x0
+    for n, color, label_text in parts:
+        w = int(width * n / 200)
+        draw.rectangle((x, y0, x + w, y0 + height), fill=color)
+        text(draw, (x + 18, y0 + 30), label_text, 26, (5, 12, 8, 255), bold=True)
+        x += w
+
+    text(draw, (80, 310), "69.0% 主题得分", 52, AMBER, bold=True)
+    text(draw, (620, 322), "|", 40, MUTED)
+    text(draw, (670, 310), "非外观设计 61.7%", 42, INK, bold=True)
+    text(draw, (80, 400), "200 条随机抽检；主题得分按 1 / 0.5 / 0 计算。", 23, MUTED)
+
+    rounded(draw, (80, 500, 1720, 640), fill=CARD, outline=BORDER, radius=18)
+    text(draw, (110, 522), "主要误差", 26, GREEN, bold=True)
+    text(draw, (110, 568),
+         "兜底主题过粗、宽泛词误命中、细粒度主题漏检。",
+         25, MUTED)
+    text(draw, (110, 612),
+         "FP：整车电控（未细分）15、驱动电机 14；FN：充电控制 12、整车控制 12。",
+         21, MUTED)
+
+    text(draw, (80, 700),
+         "申请人、IPC、功效、引用为结构化字段，抽样一致。",
+         23, MUTED)
+    save_pair(image, "req4_eval_results")
+
+
 def eval_framework():
     W, H = 1800, 820
     image = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -540,5 +607,5 @@ if __name__ == "__main__":
     quality_chart()
     extraction_fusion()
     eval_framework()
-    eval_results()
+    eval_results_200_bar()
     print("written to", OUT)
